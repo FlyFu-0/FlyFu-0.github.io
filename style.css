@@ -67,7 +67,9 @@ button {
 }
 
 .find-block {
-    position: relative;
+    position: absolute;
+    top: 66px;
+    width: 326px;
 }
 
 .find {
@@ -99,7 +101,6 @@ button {
 }
 
 .error-message {
-    position: absolute;
     display: block;
     width: 100%;
     padding: 15px 25px;
