@@ -20,13 +20,14 @@ button {
 
 .container {
     max-width: 1100px;
-    height: calc(100vh - 75px);
-    padding-top: 75px;
+    height: calc(100vh - 60px);
+    padding-top: 60px;
     margin: auto;
 
 }
 
 .header {
+    position: relative;
     display: flex;
     width: 100%;
     justify-content: space-between;
@@ -145,7 +146,7 @@ button {
 }
 
 .main {
-    margin-top: 250px;
+    margin-top: 200px;
 }
 
 .weather {
@@ -153,7 +154,7 @@ button {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding-bottom: 250px;
+    padding-bottom: 200px;
 }
 
 .weather-inner {
@@ -179,7 +180,7 @@ button {
 .weather-description {
     margin-top: 10px;
 
-    font-size: 27px;
+    font-size: 25px;
 }
 
 .weather-info-list {
