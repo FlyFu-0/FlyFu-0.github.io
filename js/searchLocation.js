@@ -15,16 +15,16 @@ export const findLocation = async () => {
     cityOptions.style.display = "none";
     find.style.display = "flex";
 
-    const errorMessage = document.createElement("div");
 
     const showError = () => {
+        const errorMessage = document.createElement("div");
         errorMessage.classList.add("error-message");
         errorMessage.textContent = `City not found!`;
         findBlock.appendChild(errorMessage);
 
         setTimeout(() => {
             errorMessage.remove();
-        }, 2500);
+        }, 3000);
     }
 
     async function setFindingCity() {
@@ -48,7 +48,7 @@ export const findLocation = async () => {
 
             cityOptions.style.display = "block";
             find.style.display = "none";
-            errorMessage.remove();
+            findBlock.innerHTML = '';
         } catch (error) {
             console.error(error);
         }
@@ -70,7 +70,7 @@ export const findLocation = async () => {
             cityOptions.style.display = "block";
             find.style.display = "none";
             searchLocation.value = '';
-            errorMessage.remove();
+            findBlock.innerHTML = '';
         }
     })
 }
