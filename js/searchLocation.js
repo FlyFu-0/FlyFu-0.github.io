@@ -41,7 +41,6 @@ export const findLocation = async () => {
 
             if(weather.message) {
                 showError(weather.message);
-                errorMessage.remove();
                 return;
             }
 
@@ -49,6 +48,7 @@ export const findLocation = async () => {
 
             cityOptions.style.display = "block";
             find.style.display = "none";
+            errorMessage.remove();
         } catch (error) {
             console.error(error);
         }
@@ -63,14 +63,7 @@ export const findLocation = async () => {
             setFindingCity();;
     });
 
-    // console.log(searchLocation);
-    // console.log(find);
-    // console.log(findBtn);
-
     window.addEventListener("click", (e) => {
-        // console.log(e);
-        // console.log(e.target);
-
         if(e.target == searchLocation || e.target == find || e.target == cityLocation)
             return;
         else {
@@ -81,17 +74,3 @@ export const findLocation = async () => {
         }
     })
 }
-
-
-// window.addEventListener("click", (e) => {
-//     if(e.target == searchLocation || e.target == findBtn || e.target == find) {
-//         console.log("in if");
-//         return;
-//     }
-
-//     console.log(e.target);
-//     console.log(searchLocation);
-//     console.log("in this");
-//     // cityOptions.style.display = "block";
-//     // find.style.display = "none";
-// })
