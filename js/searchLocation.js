@@ -15,7 +15,6 @@ export const findLocation = async () => {
     cityOptions.style.display = "none";
     find.style.display = "flex";
 
-
     const showError = () => {
         const errorMessage = document.createElement("div");
         errorMessage.classList.add("error-message");
