@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <script type="module" src="js/app.js" defer></script>
+    <title>Weather App</title>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="city-options">
+                <h1 class="city-name"></h1>
+
+                <div class="city-inner">
+                    <button class="city-location" type="button">Change location</button>
+                    <button class="my-location" type="button">My location</button>
+                </div>
+            </div>
+
+            <div class="find-block">
+                <div class="find">
+                    <input class="find-location" type="text">
+                    <button class="find-btn" type="button">OK</button>
+                </div>
+                <!-- <div class="error-message">
+                    City not found!
+                </div>
+                <div class="error-message">
+                    City not found!
+                </div>
+                <div class="error-message">
+                    City not found!
+                </div> -->
+            </div>
+
+            <div class="header-units">
+                <button class="units-c unit-current" type="button">C</button>
+                <button class="units-f" type="button">F</button>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="weather">
+                <div class="weather-inner">
+                    <img src="" alt="Weather Status">
+                    <p class="weather-temp"></p>
+                    <p class="temp-units">&deg;C</p>
+                </div>
+                <p class="weather-description"></p>
+            </div>
+
+            <div class="weather-info">
+                <ul class="weather-info-list">
+                    <li class="weater-info--item">
+                        <span>Wind</span>
+                        <p class="info-of-wind"></p>
+                    </li>
+                    <li class="weater-info--item">
+                        <span>Pressure</span>
+                        <p class="info-of-pressure"></p>
+                    </li>
+                    <li class="weater-info--item">
+                        <span>Humidity</span>
+                        <p class="info-of-humidity"></p>
+                    </li>
+                    <li class="weater-info--item">
+                        <span>Clouds</span>
+                        <p class="info-of-clouds"></p>
+                    </li>
+                </ul>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
