@@ -12,8 +12,7 @@ function db()
         $password = "php_user";
         $dbname = "chat_app";
 
-        $connect = mysqli_connect($host, $user, $password, $dbname, $port)
-            or die('Could not connect to the database server' . mysqli_connect_error());
+        $connect = mysqli_connect($host, $user, $password, $dbname, $port) or die('Could not connect to the database server' . mysqli_connect_error());
     }
 
     return $connect;

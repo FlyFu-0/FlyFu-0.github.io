@@ -1,19 +1,29 @@
 <?php
 
     require_once __DIR__ . '/header.php';
+    require_once __DIR__ . '/messages.php';
 
-    $db = db();
+    $result = fetchMessages();
 
-    if (mysqli_connect_errno()) {
+    $error = '';
 
-        die("Database connection failed: " . mysqli_connect_error());
+    if (!empty($_POST)) {
+        $message = trim(htmlspecialchars($_POST['message']));
+
+        if (!empty($message)) {
+            createMessage($message);
+            header('Location: index.php');
+            die;
+        } else {
+            $error = 'Please enter a message';
+        }
+
     }
-
-    $result = mysqli_query($db, "SELECT username, email, text, m.create_date AS 'created' FROM messages m JOIN user u ON m.user_id = u.id ORDER BY 4 DESC;");
 ?>
 <form action="" method="post">
     <input type="text" placeholder="Username"/>
     <input type="password" placeholder="Password"/>
+
     <input type="submit" value="Authorize">
 </form>
 
@@ -22,11 +32,16 @@
     <p>Email: </p>
 </div>
 
+<p style="color: red;"><?= $error; ?></p>
 
-<form action="" method="post">
-    <textarea name="message" placeholder="Your message..." id=""></textarea>
-    <input type="file">
-    <input type="submit" value="Send">
+<form action="/index.php" method="post" enctype="multipart/form-data">
+    <textarea name="message" placeholder="Your message..."></textarea>
+    <br/>
+
+    <input type="hidden" name="MAX_FILE_SIZE" value="103000">
+    <input type="file" name="file">
+
+    <input type="submit" value="Send" name="Send"> <input type="reset" value="Reset">
 </form>
 
 <br/>
@@ -56,6 +71,6 @@
     </tbody>
 </table>
 <?php
-    mysqli_close($db);
+    mysqli_close(db());
     require_once __DIR__ . '/footer.php';
 ?>
