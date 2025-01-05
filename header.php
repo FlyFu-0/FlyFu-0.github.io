@@ -1,4 +1,4 @@
-<?php 
+<?php
     require_once __DIR__ . '/db.php';
 ?>
 
@@ -10,4 +10,4 @@
     <link rel="stylesheet" href="style.css">
     <title>Chat PHP Application</title>
 </head>
-<body>
+<body style="font-family: 'Montserrat', sans-serif;">
