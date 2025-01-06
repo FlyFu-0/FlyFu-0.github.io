@@ -1,3 +1,4 @@
+<pre>
 <?php
 
     require_once __DIR__ . '/header.php';
@@ -8,21 +9,32 @@
     $error = '';
 
     if (!empty($_POST)) {
-        $message = trim(htmlspecialchars($_POST['message']));
+        $message = trim(htmlspecialchars($_POST['message'] ?? ''));
 
         if (!empty($message)) {
-            createMessage($message);
-            header('Location: index.php');
-            die;
+            if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
+                if (addFile($error)) {
+                    createMessage($message);
+                    header('Location: index.php');
+                    die;
+                }
+            } else {
+                createMessage($message);
+                header('Location: index.php');
+                die;
+            }
         } else {
+
             $error = 'Please enter a message';
         }
-
     }
 ?>
+</pre>
+
+
 <form action="" method="post">
-    <input type="text" placeholder="Username"/>
-    <input type="password" placeholder="Password"/>
+    <input type="text" placeholder="Username" />
+    <input type="password" placeholder="Password" />
 
     <input type="submit" value="Authorize">
 </form>
@@ -36,7 +48,7 @@
 
 <form action="/index.php" method="post" enctype="multipart/form-data">
     <textarea name="message" placeholder="Your message..."></textarea>
-    <br/>
+    <br />
 
     <input type="hidden" name="MAX_FILE_SIZE" value="103000">
     <input type="file" name="file">
@@ -44,7 +56,7 @@
     <input type="submit" value="Send" name="Send"> <input type="reset" value="Reset">
 </form>
 
-<br/>
+<br />
 
 <table>
     <thead style="text-align: center;">
