@@ -2,21 +2,21 @@
 
 function fetchMessages()
 {
-    return mysqli_query(db(), "SELECT username, email, text, m.create_date AS 'created' FROM messages m JOIN user u ON m.user_id = u.id ORDER BY 4 DESC;");
+    return mysqli_query(db(), "SELECT username, email, text, m.create_date AS 'created', filePath FROM messages m JOIN user u ON m.user_id = u.id ORDER BY 4 DESC;");
 }
 
-function createMessage(string $message)
+function createMessage(string $message, string $savedfilePath = NULl)
 {
-    $flag = mysqli_query(db(), "INSERT INTO messages (text, user_id) VALUES ('$message', 1);");
+    $savedfilePath = mysqli_escape_string(db(), $savedfilePath);
+    $result = mysqli_query(db(), "INSERT INTO messages (text, user_id, filePath) VALUES ('$message', 1, '$savedfilePath');");
 }
 
-function addFile(&$error): bool
+function addFile(&$error, &$savedfilePath): bool
 {
     $allowedTextExtensions = ['txt'];
     $allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png'];
     $maxFileSize = 100 * 1024;
     $uploadPath = $_SERVER['DOCUMENT_ROOT'] . '/userfiles/';
-
 
     $file = $_FILES['file'];
     $fileName = $file['name'];
@@ -40,10 +40,13 @@ function addFile(&$error): bool
         }
     }
 
-    $storageFilePath = $uploadPath . time() . " - " . $fileName;
+    $storageFileName = time() . " - " . $fileName;
+    $storageFilePath = $uploadPath . $storageFileName;
     if (!move_uploaded_file($fileTmpPath, $storageFilePath)) {
         $error .= "Error saving the file!";
         return false;
+    } else {
+        $savedfilePath = $storageFileName;
     }
 
     return true;

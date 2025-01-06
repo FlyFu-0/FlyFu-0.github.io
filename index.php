@@ -1,33 +1,34 @@
 <pre>
 <?php
 
-    require_once __DIR__ . '/header.php';
-    require_once __DIR__ . '/messages.php';
+require_once __DIR__ . '/header.php';
+require_once __DIR__ . '/messages.php';
 
-    $result = fetchMessages();
+$result = fetchMessages();
 
-    $error = '';
+$error = '';
+$savedfilePath = NULL;
 
-    if (!empty($_POST)) {
-        $message = trim(htmlspecialchars($_POST['message'] ?? ''));
+if (!empty($_POST)) {
+    $message = trim(htmlspecialchars($_POST['message'] ?? ''));
 
-        if (!empty($message)) {
-            if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
-                if (addFile($error)) {
-                    createMessage($message);
-                    header('Location: index.php');
-                    die;
-                }
-            } else {
-                createMessage($message);
+    if (!empty($message)) {
+        if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
+            if (addFile($error, $savedfilePath)) {
+                createMessage($message, $savedfilePath);
                 header('Location: index.php');
                 die;
             }
         } else {
-
-            $error = 'Please enter a message';
+            createMessage($message);
+            header('Location: index.php');
+            die;
         }
+    } else {
+
+        $error = 'Please enter a message';
     }
+}
 ?>
 </pre>
 
@@ -76,13 +77,17 @@
                 <td><?= $row["username"] ?></td>
                 <td><?= $row["email"] ?></td>
                 <td><?= $row["text"] ?></td>
-                <td></td>
+                <td>
+                    <?php if (!empty($row['filePath']) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/userfiles/' . $row['filePath'])) : ?>
+                        <a href="/userfiles/<?= htmlspecialchars($row['filePath']) ?>" target="_blank">file</a>
+                    <?php endif ?>
+                </td>
                 <td><?= $row["created"] ?></td>
             </tr>
         <?php endwhile ?>
     </tbody>
 </table>
 <?php
-    mysqli_close(db());
-    require_once __DIR__ . '/footer.php';
+mysqli_close(db());
+require_once __DIR__ . '/footer.php';
 ?>
