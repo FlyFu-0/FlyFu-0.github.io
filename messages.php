@@ -5,10 +5,12 @@ function fetchMessages()
     return mysqli_query(db(), "SELECT username, email, text, m.create_date AS 'created', filePath FROM messages m JOIN user u ON m.user_id = u.id ORDER BY 4 DESC;");
 }
 
-function createMessage(string $message, string $savedfilePath = NULl)
+function createMessage(string $message, string $savedfilePath = NULl): bool
 {
-    $savedfilePath = mysqli_escape_string(db(), $savedfilePath);
-    $result = mysqli_query(db(), "INSERT INTO messages (text, user_id, filePath) VALUES ('$message', 1, '$savedfilePath');");
+    $db = db();
+    $savedfilePath = mysqli_escape_string($db, $savedfilePath);
+    $message = mysqli_escape_string($db, $message);
+    return  mysqli_query($db, "INSERT INTO messages (text, user_id, filePath) VALUES ('$message', 1, '$savedfilePath');");
 }
 
 function addFile(&$error, &$savedfilePath): bool
