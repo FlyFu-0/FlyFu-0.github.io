@@ -30,17 +30,17 @@
     }
 ?>
 <div class="container">
-    <form action="" method="post">
+    <!-- <form action="" method="post">
         <input type="text" placeholder="Username" />
         <input type="password" placeholder="Password" />
 
         <input type="submit" value="Authorize">
-    </form>
+    </form> -->
 
-    <div>
+    <!-- <div>
         <p>Username: </p>
         <p>Email: </p>
-    </div>
+    </div> -->
 
     <p style="color: red;"><?= $error; ?></p>
 

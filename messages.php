@@ -15,18 +15,7 @@ function fetchPagedMessages()
 
     $start = ($page * $count) - $count;
 
-
-    if ($page  > 1) {
-        echo "<a href='index.php?page=" . ($page - 1) . "'" . " class='pageLink'" . " > Prev </a>";
-    }
-
-    for ($i = 1; $i <= $totalPages; $i++){
-        echo "<a href='index.php?page=" . $i . "'" . ($page == $i ? " class='active pageLink'": " class='pageLink'") . " > $i </a>";
-    }
-
-    if ($page < $totalPages) {
-        echo "<a href=index.php?page=". ($page + 1) . "'" . " class='pageLink'" . " > Next </a>";
-    }
+    renderPagination($page, $totalPages);
 
     return mysqli_query($db,
     "SELECT username, email, text, m.create_date AS 'created', filePath
@@ -35,6 +24,38 @@ function fetchPagedMessages()
             LIMIT $start, $count;");
 }
 
+function renderPagination($currentPage, $totalPages)
+{
+    if ($currentPage > 1) {
+        echo "<a href='index.php?page=" . ($currentPage - 1) . "' class='pageLink'>Prev</a>";
+    }
+
+    if ($currentPage > 2) {
+        echo "<a href='index.php?page=1' class='pageLink'>1</a>";
+        if ($currentPage > 3) {
+            echo "<span class='pageLink'>...</span>";
+        }
+    }
+
+    for ($i = max(1, $currentPage - 1); $i <= min($totalPages, $currentPage + 1); $i++) {
+        if ($i === $currentPage) {
+            echo "<a class='active pageLink'>$i</a>";
+        } else {
+            echo "<a href='index.php?page=$i' class='pageLink'>$i</a>";
+        }
+    }
+
+    if ($currentPage < $totalPages - 1) {
+        if ($currentPage < $totalPages - 2) {
+            echo "<span class='pageLink'>...</span>";
+        }
+        echo "<a href='index.php?page=$totalPages' class='pageLink'>$totalPages</a>";
+    }
+
+    if ($currentPage < $totalPages) {
+        echo "<a href='index.php?page=" . ($currentPage + 1) . "' class='pageLink'>Next</a>";
+    }
+}
 
 function createMessage(string $message, string $savedfilePath = NULl): bool
 {
