@@ -3,7 +3,7 @@
     font-family: 'Montserrat', sans-serif;
 }
 
-.container {
+body {
     display: flex;
     flex-direction: column;
     width: 85%;
@@ -48,4 +48,9 @@ table, td {
 
 .pageLink:hover {
     background-color: lightgreen;
+}
+
+.pagination {
+    display: flex;
+    margin-top: 50px;
 }
