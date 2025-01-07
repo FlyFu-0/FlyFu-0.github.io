@@ -10,8 +10,11 @@ class MessageModel
         $this->db = db();
     }
 
-    public function fetchPagedMessages()
+    public function fetchPagedMessages($sortingField = 'created', $order = 'DESC')
     {
+        $sortField = mysqli_escape_string($this->db, htmlspecialchars($sortingField));
+        $order = mysqli_escape_string($this->db, htmlspecialchars($order));
+
         $res = mysqli_query($this->db, "SELECT COUNT(*) FROM `messages`");
         $row = mysqli_fetch_row($res);
         $total = $row[0];
@@ -27,7 +30,7 @@ class MessageModel
             $this->db,
             "SELECT username, email, text, m.create_date AS 'created', filePath
             FROM `messages` m JOIN `user` u ON m.user_id = u.id
-            ORDER BY 4 DESC
+            ORDER BY $sortingField $order
             LIMIT $start, $count;"
         );
 

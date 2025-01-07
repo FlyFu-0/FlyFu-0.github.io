@@ -20,11 +20,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
 <table>
     <thead>
         <tr>
-            <td>UserName</td>
-            <td>Email</td>
-            <td>Text</td>
-            <td>File</td>
-            <td>Created</td>
+            <td><a href="?sort=username&order=<?= $sortOrder === 'desc' ? 'asc' : 'desc' ?>">UserName</a></td>
+            <td><a href="?sort=email&order=<?= $sortOrder === 'desc' ? 'asc' : 'desc' ?>">Email</a></td>
+            <td><a href="?sort=text&order=<?= $sortOrder === 'desc' ? 'asc' : 'desc' ?>">Text</a></td>
+            <td><a href="?sort=filePath&order=<?= $sortOrder === 'desc' ? 'asc' : 'desc' ?>">File</a></td>
+            <td><a href="?sort=created&order=<?= $sortOrder === 'desc' ? 'asc' : 'desc' ?>">Created</a></td>
         </tr>
     </thead>
     <tbody>
