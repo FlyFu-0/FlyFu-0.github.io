@@ -4,18 +4,28 @@ function fetchPagedMessages()
 {
     $db = db();
 
-    $page = (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) ? (int)$_GET['page'] : 1;
-    $count = 5;
-    $start = ($page * $count) - $count;
-
     $res = mysqli_query($db, "SELECT COUNT(*) FROM `messages`");
     $row = mysqli_fetch_row($res);
     $total = $row[0];
 
+    $count = 5;
     $totalPages = ceil($total / $count);
 
+    $page = (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) ? min((int)$_GET['page'], $totalPages) : 1;
+
+    $start = ($page * $count) - $count;
+
+
+    if ($page  > 1) {
+        echo "<a href=index.php?page=". ($page - 1) . "> Prev </a>";
+    }
+
     for ($i = 1; $i <= $totalPages; $i++){
-        echo "<a href=index.php?page=".$i."> Страница ".$i." </a>";
+        echo "<a href='index.php?page=" . $i . "'" . ($page == $i ? " class='active'": "") . " > $i </a>";
+    }
+
+    if ($page < $totalPages) {
+        echo "<a href=index.php?page=". ($page + 1) . "> Next </a>";
     }
 
     return mysqli_query($db,

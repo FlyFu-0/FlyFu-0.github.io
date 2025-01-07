@@ -29,3 +29,9 @@ table, td {
     padding: 3px;
     border: 1px solid black;
 }
+
+a.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
