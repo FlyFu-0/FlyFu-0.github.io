@@ -1,9 +1,31 @@
-table {
+* {
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
     width: 85%;
+    margin: auto;
+}
+
+textarea {
+    padding: 5px;
+    max-width: 100%;
+    min-width: 200px;
+    max-height: 300px;
+    min-height: 100px;
+    font-weight: 500;
+}
+
+table {
+    width: 100%;
     margin: auto;
     border-collapse: collapse;
 }
 
 table, td {
-    border: 10px solid black;
+    padding: 3px;
+    border: 1px solid black;
 }

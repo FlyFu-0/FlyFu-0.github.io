@@ -10,4 +10,4 @@
     <link rel="stylesheet" href="/style.css">
     <title>Chat PHP Application</title>
 </head>
-<body style="font-family: 'Montserrat', sans-serif;">
+<body>
