@@ -35,3 +35,15 @@ a.active {
     color: white;
     border-color: #007bff;
 }
+
+.pageLink {
+    padding: 5px;
+    margin-top: 20px 0px;
+    border: 1px solid black;
+    text-decoration: none;
+    color: black;
+}
+
+.pageLink:hover {
+    background-color: lightgreen;
+}

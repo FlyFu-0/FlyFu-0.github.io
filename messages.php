@@ -17,15 +17,15 @@ function fetchPagedMessages()
 
 
     if ($page  > 1) {
-        echo "<a href=index.php?page=". ($page - 1) . "> Prev </a>";
+        echo "<a href='index.php?page=" . ($page - 1) . "'" . " class='pageLink'" . " > Prev </a>";
     }
 
     for ($i = 1; $i <= $totalPages; $i++){
-        echo "<a href='index.php?page=" . $i . "'" . ($page == $i ? " class='active'": "") . " > $i </a>";
+        echo "<a href='index.php?page=" . $i . "'" . ($page == $i ? " class='active pageLink'": " class='pageLink'") . " > $i </a>";
     }
 
     if ($page < $totalPages) {
-        echo "<a href=index.php?page=". ($page + 1) . "> Next </a>";
+        echo "<a href=index.php?page=". ($page + 1) . "'" . " class='pageLink'" . " > Next </a>";
     }
 
     return mysqli_query($db,
