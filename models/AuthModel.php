@@ -11,14 +11,30 @@ class AuthModel
         $this->db = db();
     }
 
-    public function register($username, $email, $password, $ip, $browser)
+    public function register(string $username, string $email, string $password, string $ip, string $browser)
     {
         $username = mysqli_escape_string($this->db, htmlspecialchars($username));
+        if (!ctype_alnum($username)) {
+            flash('Username invalid format! Can contains only digits and letters.');
+            header('Location: ?url=register');
+            die;
+        }
+
         $email = mysqli_escape_string($this->db, htmlspecialchars($email));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            flash('Email invalid format!');
+            header('Location: ?url=register');
+            die;
+        }
+
+        if (strlen($password) < 5) {
+            flash('Password must be at least 6 characters long!');
+            header('Location: ?url=register');
+            die;
+        }
 
         $result = mysqli_query($this->db, "SELECT username FROM user WHERE username = '$username' OR email = '$email';");
 
-        var_dump(mysqli_num_rows($result));
         if (mysqli_num_rows($result) > 0) {
             flash('Username or Email already taken.');
             header('Location: ?url=register');
@@ -33,7 +49,7 @@ class AuthModel
         header('Location: /');
     }
 
-    public function login($username, $password)
+    public function login(string $username, string $password)
     {
         $username = mysqli_escape_string($this->db, htmlspecialchars($username));
 

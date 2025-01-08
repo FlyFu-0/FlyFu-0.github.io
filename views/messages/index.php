@@ -20,7 +20,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
 
 
     <form action="?url=messages" method="post" enctype="multipart/form-data" class="message-send-container">
-        <textarea name="message" placeholder="Your message..."></textarea>
+        <textarea name="message" placeholder="Your message..." required></textarea>
         <br />
 
         <input type="hidden" name="MAX_FILE_SIZE" value="103000">
