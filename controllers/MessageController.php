@@ -6,6 +6,9 @@ class MessageController
 {
     public function index()
     {
+        $username = $_SESSION['user_name'] ?? '';
+        $email = $_SESSION['user_email'] ?? '';
+
         $sortField = isset($_GET['sort']) ? $_GET['sort'] : 'created';
         $sortOrder = isset($_GET['order']) && $_GET['order'] === 'asc' ? 'asc' : 'desc';
 
@@ -19,8 +22,6 @@ class MessageController
         $error = '';
         $savedfilePath = NULL;
 
-        var_dump($sortOrder);
-
         if (!empty($_POST)) {
             $message = trim(htmlspecialchars($_POST['message'] ?? ''));
 
@@ -28,12 +29,12 @@ class MessageController
                 if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
                     $fileModel = new FileModel();
                     if ($fileModel->saveFile($error, $savedfilePath)) {
-                        $model->createMessage($message, $savedfilePath);
+                        $model->createMessage($message, $_SESSION['user_id'], $savedfilePath);
                         header('Location: /');
                         die;
                     }
                 } else {
-                    $model->createMessage($message);
+                    $model->createMessage($message, $_SESSION['user_id']);
                     header('Location: /');
                     die;
                 }

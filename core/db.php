@@ -1,7 +1,8 @@
 <?php
+session_start();
+
 function db()
 {
-
     static $connect = null;
 
     if ($connect === null) {

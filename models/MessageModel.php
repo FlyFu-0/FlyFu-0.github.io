@@ -41,10 +41,10 @@ class MessageModel
         ];
     }
 
-    public function createMessage(string $message, string $savedfilePath = NULl): bool
+    public function createMessage(string $message, $userId, string $savedfilePath = NULl): bool
     {
         $savedfilePath = mysqli_escape_string($this->db, $savedfilePath);
         $message = mysqli_escape_string($this->db, $message);
-        return  mysqli_query($this->db, "INSERT INTO messages (text, user_id, filePath) VALUES ('$message', 1, '$savedfilePath');");
+        return  mysqli_query($this->db, "INSERT INTO messages (text, user_id, filePath) VALUES ('$message', '$userId', '$savedfilePath');");
     }
 }

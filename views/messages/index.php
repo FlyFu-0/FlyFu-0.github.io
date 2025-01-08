@@ -3,9 +3,21 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
 ?>
 <h2>Messages</h2>
 
+<a href="?url=register">Register</a>
+<a href="?url=login">Login</a>
+<a href="?url=logout">Logout</a>
+
+<?php if (isset($_SESSION['user_id'])) : ?>
+    <div>
+        <h3>Profile</h3>
+        <p>Username: <?= $username ?></p>
+        <p>Email: <?= $email ?></p>
+    </div>
+<?php endif ?>
+
 <p style="color: red;"><?= $error; ?></p>
 
-<form action="/" method="post" enctype="multipart/form-data">
+<form action="?url=messages" method="post" enctype="multipart/form-data">
     <textarea name="message" placeholder="Your message..."></textarea>
     <br />
 
