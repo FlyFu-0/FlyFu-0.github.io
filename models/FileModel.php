@@ -14,7 +14,7 @@ class FileModel
         $this->uploadPath = $_SERVER['DOCUMENT_ROOT'] . '/userfiles/';
     }
 
-    public function saveFile(&$error, &$savedfilePath)
+    public function saveFile(&$savedfilePath)
     {
         $file = $_FILES['file'];
         $fileName = $file['name'];
@@ -22,27 +22,25 @@ class FileModel
         $fileTmpPath = $file['tmp_name'];
         $fileExtension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
 
-        $error = '';
-
         if ($this->isExtensionValid($fileExtension)) {
-            $error .= 'Unexpected file type! Allowed: TXT, JPG, GIF, PNG.' . PHP_EOL;
+            flash('Unexpected file type! Allowed: TXT, JPG, GIF, PNG.');
             return false;
         }
 
         if ($this->isSizeValid($fileSize)) {
-            $error .= 'File size exceeds limit of 100KB!' . PHP_EOL;
+            flash('File size exceeds limit of 100KB!');
             return false;
         }
 
         if ($this->isImage($fileExtension) && $this->isImageResolutionValid($fileTmpPath)) {
-            $error .= "Image exceeds allowed resolution. Allowed resolution: 320x240!" . PHP_EOL;
+            flash("Image exceeds allowed resolution. Allowed resolution: 320x240!");
             return false;
         }
 
         $storageFileName = time() . "_" . $fileName;
         $storageFilePath = $this->uploadPath . $storageFileName;
         if (!move_uploaded_file($fileTmpPath, $storageFilePath)) {
-            $error .= "Error saving the file!" . PHP_EOL;
+            flash("Error saving the file!");
             return false;
         } else {
             $savedfilePath = $storageFileName;

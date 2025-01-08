@@ -1,13 +1,34 @@
 * {
     box-sizing: border-box;
     font-family: 'Montserrat', sans-serif;
+    font-size: 15px;
+    margin: 0;
 }
 
 body {
     display: flex;
     flex-direction: column;
     width: 85%;
-    margin: auto;
+    min-height: 50vh;
+    margin: 50px auto;
+}
+
+.nav, .nav > a {
+    display: flex;
+    margin-left: auto;
+    gap: 20px;
+    text-decoration: none;
+    color: white;
+}
+
+.nav > a {
+    padding: 7px;
+    background-color: #007bff;
+    box-shadow: 1px 1px 3px black;
+}
+
+.nav > a[href="?url=logout"] {
+    background-color: tomato;
 }
 
 textarea {
@@ -19,10 +40,24 @@ textarea {
     font-weight: 500;
 }
 
+.profile-container {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #ccc;
+}
+
+.profile-container, .profile-container > h3 {
+    margin: 16px 0;
+}
+
 table {
     width: 100%;
-    margin: auto;
+    margin: 25px auto;
     border-collapse: collapse;
+}
+
+thead {
+    text-align: center;
 }
 
 table, td {
@@ -52,5 +87,41 @@ table, td {
 
 .pagination {
     display: flex;
-    margin-top: 50px;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    margin: 50px auto;
+    padding: 25px;
+    gap: 7px;
+    border: 1px solid black;
+    box-shadow: 1px 2px 5px black;
+}
+
+.auth-form > input {
+    padding: 3px;
+}
+
+.auth-form > input[type="submit"] {
+    padding: 5px;
+    background-color:#007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all .3s linear;
+}
+
+.auth-form > input[type="submit"]:hover {
+    background-color:#0015fe;
+    color: white;
+    cursor: pointer;
 }

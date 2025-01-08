@@ -1,5 +1,6 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/AuthModel.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/helpers/get_ip.php';
 
 class AuthController
 {
@@ -7,7 +8,7 @@ class AuthController
     {
         if (!empty($_POST)) {
             $model = new AuthModel();
-            $result = $model->register($_POST['username'], $_POST['email'], $_POST['password']);
+            $result = $model->register($_POST['username'], $_POST['email'], $_POST['password'], get_ip(), $_SERVER['HTTP_USER_AGENT']);
         }
 
         require $_SERVER['DOCUMENT_ROOT'] . '/views/authentication/register.php';

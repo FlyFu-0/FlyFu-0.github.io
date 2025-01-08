@@ -19,7 +19,6 @@ class MessageController
         $currentPage = $result['currentPage'];
         $totalPages = $result['totalPages'];
 
-        $error = '';
         $savedfilePath = NULL;
 
         if (!empty($_POST)) {
@@ -28,7 +27,7 @@ class MessageController
             if (!empty($message)) {
                 if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
                     $fileModel = new FileModel();
-                    if ($fileModel->saveFile($error, $savedfilePath)) {
+                    if ($fileModel->saveFile($savedfilePath)) {
                         $model->createMessage($message, $_SESSION['user_id'], $savedfilePath);
                         header('Location: /');
                         die;
@@ -40,7 +39,7 @@ class MessageController
                 }
             } else {
 
-                $error .= 'Please enter a message' . PHP_EOL;
+                flash('Please enter a message');
             }
         }
 

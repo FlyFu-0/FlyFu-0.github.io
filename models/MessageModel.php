@@ -19,7 +19,7 @@ class MessageModel
         $row = mysqli_fetch_row($res);
         $total = $row[0];
 
-        $count = 5;
+        $count = 25;
         $totalPages = ceil($total / $count);
 
         $page = (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) ? min((int)$_GET['page'], $totalPages) : 1;

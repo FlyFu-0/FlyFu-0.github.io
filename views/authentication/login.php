@@ -1,11 +1,14 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php';
 ?>
-<div>
+<div class="container">
+    <div class="nav">
+        <a href="<?= $_SERVER['HTTP_REFERER'] ?>">Back</a>
+    </div>
     <?php flash(); ?>
-    <form action="?url=login" method="post">
-        <input type="text" placeholder="Username" name="username" />
-        <input type="password" placeholder="Password" name="password" />
+    <form action="?url=login" method="post" class="auth-form">
+        <input type="text" placeholder="Username" name="username" required autofocus />
+        <input type="password" placeholder="Password" name="password" required />
 
         <input type="submit" value="Login" name="Login">
     </form>

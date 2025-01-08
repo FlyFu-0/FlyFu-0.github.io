@@ -1,33 +1,34 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
 ?>
-<h2>Messages</h2>
+<div class="nav">
+    <?php if (!isset($_SESSION['user_id'])) : ?>
+        <a href="?url=register">Register</a>
+        <a href="?url=login">Login</a>
+    <?php else : ?>
+        <a href="?url=logout">Logout</a>
+    <?php endif ?>
+</div>
 
-<a href="?url=register">Register</a>
-<a href="?url=login">Login</a>
-<a href="?url=logout">Logout</a>
-
+<?php flash(); ?>
 <?php if (isset($_SESSION['user_id'])) : ?>
-    <div>
+    <div class="profile-container">
         <h3>Profile</h3>
-        <p>Username: <?= $username ?></p>
-        <p>Email: <?= $email ?></p>
+        <p>Username: <b><?= $username ?></b></p>
+        <p>Email: <b><?= $email ?></b></p>
     </div>
+
+
+    <form action="?url=messages" method="post" enctype="multipart/form-data" class="message-send-container">
+        <textarea name="message" placeholder="Your message..."></textarea>
+        <br />
+
+        <input type="hidden" name="MAX_FILE_SIZE" value="103000">
+        <input type="file" name="file">
+
+        <input type="submit" value="Send" name="Send"> <input type="reset" value="Reset">
+    </form>
 <?php endif ?>
-
-<p style="color: red;"><?= $error; ?></p>
-
-<form action="?url=messages" method="post" enctype="multipart/form-data">
-    <textarea name="message" placeholder="Your message..."></textarea>
-    <br />
-
-    <input type="hidden" name="MAX_FILE_SIZE" value="103000">
-    <input type="file" name="file">
-
-    <input type="submit" value="Send" name="Send"> <input type="reset" value="Reset">
-</form>
-
-<hr>
 
 <table>
     <thead>

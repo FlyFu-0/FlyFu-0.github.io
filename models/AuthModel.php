@@ -11,7 +11,7 @@ class AuthModel
         $this->db = db();
     }
 
-    public function register($username, $email, $password)
+    public function register($username, $email, $password, $ip, $browser)
     {
         $username = mysqli_escape_string($this->db, htmlspecialchars($username));
         $email = mysqli_escape_string($this->db, htmlspecialchars($email));
@@ -28,14 +28,13 @@ class AuthModel
         $password = mysqli_escape_string($this->db, htmlspecialchars($password));
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-        mysqli_query($this->db, "INSERT INTO `user` (`username`, `email`, `passwordHash`) VALUES ('$username', '$email', '$passwordHash')");
+        mysqli_query($this->db, "INSERT INTO `user` (`username`, `email`, `passwordHash`, `register_ip`, `browser`) VALUES ('$username', '$email', '$passwordHash', '$ip', '$browser')");
 
-        // header('Location: ');
+        header('Location: /');
     }
 
     public function login($username, $password)
     {
-        echo "<script>alert(Hello world!);</script>";
         $username = mysqli_escape_string($this->db, htmlspecialchars($username));
 
         $result = mysqli_query($this->db, "SELECT * FROM user WHERE username = '$username';");
