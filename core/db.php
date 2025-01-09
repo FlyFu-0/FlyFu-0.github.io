@@ -1,14 +1,16 @@
 <?php
 session_start();
 
-function db()
+function pdo() : PDO
 {
-    static $connect = null;
+    static $pdo;
 
-    if ($connect === null) {
+    if (!$pdo) {
         $config = include $_SERVER['DOCUMENT_ROOT'] . '/config.php';
-        $connect = mysqli_connect($config['host'], $config['user'], $config['password'], $config['dbname'], $config['port']) or die('Could not connect to the database server' . mysqli_connect_error());
+        $dsn = 'mysql:dbname=' . $config['dbname'] . ';host=' . $config['host'];
+        $pdo = new PDO($dsn, $config['user'], $config['password']);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    return $connect;
+    return $pdo;
 }

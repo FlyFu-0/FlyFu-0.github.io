@@ -3,48 +3,55 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/core/db.php';
 
 class MessageModel
 {
-    private $db;
+    private $pdo;
 
     public function __construct()
     {
-        $this->db = db();
+        $this->pdo = pdo();
     }
 
     public function fetchPagedMessages($sortingField = 'created', $order = 'DESC')
     {
-        $sortField = mysqli_escape_string($this->db, htmlspecialchars($sortingField));
-        $order = mysqli_escape_string($this->db, htmlspecialchars($order));
+        $sortField = htmlspecialchars($sortingField);
+        $order =  htmlspecialchars($order);
 
-        $res = mysqli_query($this->db, "SELECT COUNT(*) FROM `messages`");
-        $row = mysqli_fetch_row($res);
-        $total = $row[0];
+        $stmt = $this->pdo->query("SELECT COUNT(*) as total FROM `messages`");
+        $total = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-        $count = 25;
-        $totalPages = ceil($total / $count);
+        $messagesPerPage = 25;
+        $totalPages = ceil($total / $messagesPerPage);
 
         $page = (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) ? min((int)$_GET['page'], $totalPages) : 1;
 
-        $start = ($page * $count) - $count;
+        $startRecord = ($page * $messagesPerPage) - $messagesPerPage;
 
-        $result = mysqli_query(
-            $this->db,
-            "SELECT `username`, `email`, `text`, `m`.`create_date` AS 'created', filePath
-            FROM `messages` m JOIN `user` u ON m.user_id = u.id
-            ORDER BY `$sortingField` $order
-            LIMIT $start, $count;"
+        $stmt = $this->pdo->prepare(
+            "SELECT `username`, `email`, `text`, `m`.`create_date` AS `created`, `filePath`
+             FROM `messages` m
+             JOIN `user` u ON m.user_id = u.id
+             ORDER BY `$sortingField` $order
+             LIMIT :start, :count"
         );
+        $stmt->bindValue(':start', $startRecord, PDO::PARAM_INT);
+        $stmt->bindValue(':count', $messagesPerPage, PDO::PARAM_INT);
+        $stmt->execute();
 
         return [
             'totalPages' => $totalPages,
             'currentPage' => $page,
-            'result' => mysqli_fetch_all($result, MYSQLI_ASSOC)
+            'result' => $stmt->fetchAll(PDO::FETCH_ASSOC)
         ];
     }
 
     public function createMessage(string $message, string $userId, string $ip, string $browser, string $savedfilePath = NULl): bool
     {
-        $savedfilePath = mysqli_escape_string($this->db, $savedfilePath);
-        $message = mysqli_escape_string($this->db, $message);
-        return  mysqli_query($this->db, "INSERT INTO `messages` (`text`, `user_id`, `filePath`, `sender_ip`, `browser`) VALUES ('$message', '$userId', '$savedfilePath', '$ip', '$browser');");
+        $stmt = $this->pdo->prepare("INSERT INTO `messages` (`text`, `user_id`, `filePath`, `sender_ip`, `browser`) VALUES (:message, :userId, :savedfilePath, :ip, :browser)");
+        return $stmt->execute([
+            'message' => htmlspecialchars($message),
+            'userId' => $userId,
+            'savedfilePath' => $savedfilePath,
+            'ip' => $ip,
+            'browser' => $browser
+        ]);
     }
 }
