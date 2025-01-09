@@ -44,5 +44,6 @@
 └── index.php      # Точка входа в приложение.
 ```
 ## ER Diagram
-![image](https://github.com/user-attachments/assets/a53870c0-4582-430c-a280-6e59b07695e0)
+![image](https://github.com/user-attachments/assets/65b5237d-3741-4410-bd40-cea4fcae0b07)
+
 
