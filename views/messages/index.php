@@ -74,7 +74,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
         <?php if ($i === $currentPage) : ?>
             <a class="pageLink active"><?= $i ?></a>
         <?php else : ?>
-            <a href="index.php?page=$i" class="pageLink"><?= $i ?></a>
+            <a href="index.php?page=<?= $i ?>" class="pageLink"><?= $i ?></a>
         <?php endif ?>
     <?php endfor ?>
     <?php if ($currentPage < $totalPages - 1) : ?>

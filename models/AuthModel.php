@@ -33,7 +33,7 @@ class AuthModel
             die;
         }
 
-        $result = mysqli_query($this->db, "SELECT username FROM user WHERE username = '$username' OR email = '$email';");
+        $result = mysqli_query($this->db, "SELECT `username` FROM `user` WHERE `username` = '$username' OR `email` = '$email';");
 
         if (mysqli_num_rows($result) > 0) {
             flash('Username or Email already taken.');
@@ -46,14 +46,14 @@ class AuthModel
 
         mysqli_query($this->db, "INSERT INTO `user` (`username`, `email`, `passwordHash`, `register_ip`, `browser`) VALUES ('$username', '$email', '$passwordHash', '$ip', '$browser')");
 
-        header('Location: /');
+        header('Location: ?url=login');
     }
 
     public function login(string $username, string $password)
     {
         $username = mysqli_escape_string($this->db, htmlspecialchars($username));
 
-        $result = mysqli_query($this->db, "SELECT * FROM user WHERE username = '$username';");
+        $result = mysqli_query($this->db, "SELECT `id`, `username`, `email`, `passwordHash` FROM `user` WHERE `username` = '$username';");
         if (!mysqli_num_rows($result)) {
             flash('Username is incorrect.');
             header('Location: ?url=login');

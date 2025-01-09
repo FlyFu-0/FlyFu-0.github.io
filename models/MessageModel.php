@@ -28,9 +28,9 @@ class MessageModel
 
         $result = mysqli_query(
             $this->db,
-            "SELECT username, email, text, m.create_date AS 'created', filePath
+            "SELECT `username`, `email`, `text`, `m`.`create_date` AS 'created', filePath
             FROM `messages` m JOIN `user` u ON m.user_id = u.id
-            ORDER BY $sortingField $order
+            ORDER BY `$sortingField` $order
             LIMIT $start, $count;"
         );
 
@@ -41,10 +41,10 @@ class MessageModel
         ];
     }
 
-    public function createMessage(string $message, $userId, string $savedfilePath = NULl): bool
+    public function createMessage(string $message, string $userId, string $ip, string $browser, string $savedfilePath = NULl): bool
     {
         $savedfilePath = mysqli_escape_string($this->db, $savedfilePath);
         $message = mysqli_escape_string($this->db, $message);
-        return  mysqli_query($this->db, "INSERT INTO messages (text, user_id, filePath) VALUES ('$message', '$userId', '$savedfilePath');");
+        return  mysqli_query($this->db, "INSERT INTO `messages` (`text`, `user_id`, `filePath`, `sender_ip`, `browser`) VALUES ('$message', '$userId', '$savedfilePath', '$ip', '$browser');");
     }
 }

@@ -28,12 +28,12 @@ class MessageController
                 if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
                     $fileModel = new FileModel();
                     if ($fileModel->saveFile($savedfilePath)) {
-                        $model->createMessage($message, $_SESSION['user_id'], $savedfilePath);
+                        $model->createMessage($message, $_SESSION['user_id'], get_ip(), $_SERVER['HTTP_USER_AGENT'], $savedfilePath);
                         header('Location: /');
                         die;
                     }
                 } else {
-                    $model->createMessage($message, $_SESSION['user_id']);
+                    $model->createMessage($message, $_SESSION['user_id'], get_ip(), $_SERVER['HTTP_USER_AGENT'],);
                     header('Location: /');
                     die;
                 }
