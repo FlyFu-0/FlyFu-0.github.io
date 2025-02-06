@@ -1,5 +1,5 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/header.php';
 ?>
 <div class="container">
     <div class="nav">
@@ -14,5 +14,5 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php';
     </form>
 </div>
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/footer.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/footer.php';
 ?>

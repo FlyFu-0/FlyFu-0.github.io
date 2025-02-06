@@ -79,6 +79,7 @@ table, td {
     color: black;
     text-decoration: none;
     text-align: center;
+    cursor: pointer;
 }
 
 .pageLink:hover {

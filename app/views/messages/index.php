@@ -1,5 +1,6 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/header.php'
 ?>
 <div class="nav">
     <?php if (!isset($_SESSION['user_id'])) : ?>
@@ -14,8 +15,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
 <?php if (isset($_SESSION['user_id'])) : ?>
     <div class="profile-container">
         <h3>Profile</h3>
-        <p>Username: <b><?= $username ?></b></p>
-        <p>Email: <b><?= $email ?></b></p>
+        <p>Username: <b><?= $_SESSION['user_name'] ?></b></p>
+        <p>Email: <b><?= $_SESSION['user_email'] ?></b></p>
     </div>
 
 
@@ -49,8 +50,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
                 <td><?= $message["email"] ?></td>
                 <td><?= $message["text"] ?></td>
                 <td>
-                    <?php if (!empty($message['filePath']) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/userfiles/' . $message['filePath'])) : ?>
-                        <a href="/userfiles/<?= htmlspecialchars($message['filePath']) ?>" target="_blank">file</a>
+                    <?php if (!empty($message['filePath']) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/upload/' . $message['filePath'])) : ?>
+                        <a href="/upload/<?= htmlspecialchars($message['filePath']) ?>" target="_blank">file</a>
                     <?php endif ?>
                 </td>
                 <td><?= $message["created"] ?></td>
@@ -88,5 +89,5 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/header.php'
     <?php endif ?>
 </div>
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/views/partials/footer.php'
+require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/footer.php'
 ?>
