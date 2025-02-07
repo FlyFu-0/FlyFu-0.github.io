@@ -93,8 +93,6 @@ class Auth
 
 		$user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-		echo "<script>console.log('Okay')</script>";
-
 		if (password_verify($password, $user['passwordHash'])) {
 			if (password_needs_rehash(
 				$user['passwordHash'],

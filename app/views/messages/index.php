@@ -16,7 +16,7 @@
     </div>
 
 
-    <form action="?url=messages" method="post" enctype="multipart/form-data" class="message-send-container">
+    <form action="messages" method="post" enctype="multipart/form-data" class="message-send-container">
         <textarea name="message" placeholder="Your message..." required></textarea>
         <br />
 
