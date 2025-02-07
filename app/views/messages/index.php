@@ -1,9 +1,9 @@
 <div class="nav">
     <?php if (!isset($_SESSION['user_id'])) : ?>
-        <a href="register">Register</a>
-        <a href="login">Login</a>
+        <a href="register/">Register</a>
+        <a href="login/">Login</a>
     <?php else : ?>
-        <a href="logout">Logout</a>
+        <a href="logout/">Logout</a>
     <?php endif ?>
 </div>
 

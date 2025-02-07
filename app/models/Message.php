@@ -14,15 +14,12 @@ class Message
 		$this->db = DB::getInstance();
 	}
 
-	public function hello()
-	{
-		echo 'Works!';
-	}
-
 	public function fetchPagedMessages(
 		$sortingField = 'created',
 		$order = 'DESC'
 	) {
+		var_dump(DB::getInstance());
+
 		$sortingField = htmlspecialchars($sortingField);
 		$order = htmlspecialchars($order);
 

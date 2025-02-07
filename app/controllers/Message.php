@@ -10,8 +10,8 @@ class Message extends Controller
 {
 	public function index()
 	{
-		$username = $_SESSION['user_name'] ?? '';
-		$email = $_SESSION['user_email'] ?? '';
+		$username = $_SESSION['user_name'] ?? 'undefined';
+		$email = $_SESSION['user_email'] ?? 'undefined';
 
 		$sortField = $_GET['sort'] ?? 'created';
 		$sortOrder = isset($_GET['order']) && $_GET['order'] === 'asc' ? 'asc'
@@ -24,7 +24,7 @@ class Message extends Controller
 		$currentPage = $result['currentPage'];
 		$totalPages = $result['totalPages'];
 
-		$savedfilePath = null;
+		$savedFilePath = null;
 
 		if (!empty($_POST)) {
 			$message = trim(htmlspecialchars($_POST['message'] ?? ''));
@@ -32,15 +32,15 @@ class Message extends Controller
 			if (!empty($message)) {
 				if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 					$fileModel = new Models\FileModel();
-					if ($fileModel->saveFile($savedfilePath)) {
+					if ($fileModel->saveFile($savedFilePath)) {
 						$model->createMessage(
 							$message,
 							$_SESSION['user_id'],
 							Tools::get_ip(),
 							$_SERVER['HTTP_USER_AGENT'],
-							$savedfilePath
+							$savedFilePath
 						);
-						header('Location: /app/bootstrap.php');
+						header('Location: /');
 						die;
 					}
 				} else {
@@ -50,7 +50,7 @@ class Message extends Controller
 						Tools::get_ip(),
 						$_SERVER['HTTP_USER_AGENT'],
 					);
-					header('Location: /app/bootstrap.php');
+					header('Location: /');
 					die;
 				}
 			} else {
@@ -66,6 +66,7 @@ class Message extends Controller
 			'totalPages' => $totalPages,
 			'user_name' => $username,
 			'user_email' => $email,
+			'$sortField' => $sortOrder,
 		]);
 	}
 }

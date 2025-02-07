@@ -6,14 +6,11 @@ class Router
 {
 	public function getTrack($routes, $uri)
 	{
-		echo '<pre>';
-//		var_dump($routes);
 
 		foreach ($routes as $route) {
-			var_dump($route->path);
-			var_dump('uri= ' . $uri);
 
-			if (str_contains(strtolower($uri), strtolower($route->path))) {
+			if ($this->findMathRoute($uri, $route->path)) {
+
 				return new Route(
 					$route->path,
 					$route->controller,
@@ -21,5 +18,10 @@ class Router
 				);
 			}
 		}
+	}
+
+	private function findMathRoute($uri, string $route): bool
+	{
+		return str_contains(strtolower($uri), strtolower($route));
 	}
 }
