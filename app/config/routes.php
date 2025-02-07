@@ -7,6 +7,7 @@ return [
 	new Route('/register/', 'auth', 'register'),
 	new Route('/login/', 'auth', 'login'),
 
+	new Route('/error/', 'error', 'notFound'),
 
 	new Route('/', 'message', 'index'),
 ];

@@ -18,6 +18,8 @@ class Router
 				);
 			}
 		}
+
+		return new Route('error/', 'error', 'notFound');
 	}
 
 	private function findMathRoute($uri, string $route): bool

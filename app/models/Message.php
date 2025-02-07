@@ -18,8 +18,6 @@ class Message
 		$sortingField = 'created',
 		$order = 'DESC'
 	) {
-		var_dump(DB::getInstance());
-
 		$sortingField = htmlspecialchars($sortingField);
 		$order = htmlspecialchars($order);
 
