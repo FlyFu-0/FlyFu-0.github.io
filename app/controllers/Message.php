@@ -2,10 +2,11 @@
 
 namespace Controllers;
 
+use Core\Controller;
 use Helpers\Tools;
 use Models;
 
-class Message
+class Message extends Controller
 {
 	public function index()
 	{
@@ -57,6 +58,14 @@ class Message
 			}
 		}
 
-		require $_SERVER['DOCUMENT_ROOT'] . '/app/views/messages/index.php';
+		$this->title = 'Messages';
+
+		return $this->render('messages/index', $data = [
+			'messages' => $messages,
+			'currentPage' => $currentPage,
+			'totalPages' => $totalPages,
+			'user_name' => $username,
+			'user_email' => $email,
+		]);
 	}
 }

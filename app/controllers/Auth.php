@@ -41,6 +41,6 @@ class Auth
 		unset($_SESSION['user_name']);
 		unset($_SESSION['user_email']);
 		flash('You have successfully logged out.');
-		header('Location: /app/bootstrap.php');
+		header('Location: index/');
 	}
 }

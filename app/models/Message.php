@@ -2,7 +2,7 @@
 
 namespace Models;
 
-use Core\DB;
+use core\DB;
 use PDO;
 
 class Message
@@ -12,6 +12,11 @@ class Message
 	public function __construct()
 	{
 		$this->db = DB::getInstance();
+	}
+
+	public function hello()
+	{
+		echo 'Works!';
 	}
 
 	public function fetchPagedMessages(

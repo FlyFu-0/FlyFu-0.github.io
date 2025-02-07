@@ -2,9 +2,7 @@
 
 namespace Core;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/app/config.php';
-
-use Registry;
+require_once $_SERVER['DOCUMENT_ROOT'] . '/app/config/config.php';
 
 use PDO;
 

@@ -1,13 +1,9 @@
-<?php
-
-require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/header.php'
-?>
 <div class="nav">
     <?php if (!isset($_SESSION['user_id'])) : ?>
-        <a href="?url=register">Register</a>
-        <a href="?url=login">Login</a>
+        <a href="register">Register</a>
+        <a href="login">Login</a>
     <?php else : ?>
-        <a href="?url=logout">Logout</a>
+        <a href="logout">Logout</a>
     <?php endif ?>
 </div>
 
@@ -15,8 +11,8 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/header.php'
 <?php if (isset($_SESSION['user_id'])) : ?>
     <div class="profile-container">
         <h3>Profile</h3>
-        <p>Username: <b><?= $_SESSION['user_name'] ?></b></p>
-        <p>Email: <b><?= $_SESSION['user_email'] ?></b></p>
+        <p>Username: <b><?= $user_name ?></b></p>
+        <p>Email: <b><?= $user_email ?></b></p>
     </div>
 
 
@@ -75,7 +71,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/header.php'
         <?php if ($i === $currentPage) : ?>
             <a class="pageLink active"><?= $i ?></a>
         <?php else : ?>
-            <a href="index.php?page=<?= $i ?>" class="pageLink"><?= $i ?></a>
+            <a href="?page=<?= $i ?>" class="pageLink"><?= $i ?></a>
         <?php endif ?>
     <?php endfor ?>
     <?php if ($currentPage < $totalPages - 1) : ?>
@@ -88,6 +84,3 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/header.php'
         <a href="?page=<?= ($currentPage + 1) ?>" class="pageLink">Next</a>
     <?php endif ?>
 </div>
-<?php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/app/views/partials/footer.php'
-?>
