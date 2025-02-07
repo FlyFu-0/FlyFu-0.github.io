@@ -1,5 +1,7 @@
 <?php
 
+//TODO: delete after creating replacement solution
+
 function flash(?string $message = null)
 {
     if ($message) {
