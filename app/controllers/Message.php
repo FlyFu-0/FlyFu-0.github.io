@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Controllers;
+namespace Controllers;
 
-use App\Helpers\Tools;
-use App\Models\FileModel;
-use App\Models\Message as MessageModel;
+use Helpers\Tools;
+use Models;
 
 class Message
 {
@@ -17,7 +16,7 @@ class Message
 		$sortOrder = isset($_GET['order']) && $_GET['order'] === 'asc' ? 'asc'
 			: 'desc';
 
-		$model = new MessageModel();
+		$model = new Models\Message();
 		$result = $model->fetchPagedMessages($sortField, $sortOrder);
 
 		$messages = $result['result'];
@@ -31,7 +30,7 @@ class Message
 
 			if (!empty($message)) {
 				if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
-					$fileModel = new FileModel();
+					$fileModel = new Models\FileModel();
 					if ($fileModel->saveFile($savedfilePath)) {
 						$model->createMessage(
 							$message,
@@ -40,7 +39,7 @@ class Message
 							$_SERVER['HTTP_USER_AGENT'],
 							$savedfilePath
 						);
-						header('Location: /app/');
+						header('Location: /app/bootstrap.php');
 						die;
 					}
 				} else {
@@ -50,7 +49,7 @@ class Message
 						Tools::get_ip(),
 						$_SERVER['HTTP_USER_AGENT'],
 					);
-					header('Location: /app/');
+					header('Location: /app/bootstrap.php');
 					die;
 				}
 			} else {

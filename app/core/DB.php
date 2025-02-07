@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Core;
+namespace Core;
 
-use App\Config;
+require_once $_SERVER['DOCUMENT_ROOT'] . '/app/config.php';
+
+use Registry;
 
 use PDO;
 
@@ -19,8 +21,8 @@ class DB
 	public static function getInstance(): PDO
 	{
 		if (!isset(self::$db)) {
-			$dsn = 'mysql:dbname=' . Config::DBNAME . ';host=' . Config::HOST;
-			self::$db = new PDO($dsn, Config::USER, Config::PASSWORD);
+			$dsn = 'mysql:dbname=' . DBNAME . ';host=' . HOST;
+			self::$db = new PDO($dsn, USER, PASSWORD);
 			self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		}
 

@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Controllers;
+namespace Controllers;
 
-use App\Models\Auth as AuthModel;
-use App\Helpers\Tools;
+use Models;
+use Helpers\Tools;
 
 class Auth
 {
 	public function register()
 	{
 		if (!empty($_POST)) {
-			$model = new AuthModel();
+			$model = new Models\Auth();
 			$model->register(
 				$_POST['username'],
 				$_POST['email'],
@@ -27,7 +27,7 @@ class Auth
 	public function login()
 	{
 		if (!empty($_POST)) {
-			$model = new AuthModel();
+			$model = new Models\Auth();
 			$model->login($_POST['username'], $_POST['password']);
 		}
 
@@ -41,6 +41,6 @@ class Auth
 		unset($_SESSION['user_name']);
 		unset($_SESSION['user_email']);
 		flash('You have successfully logged out.');
-		header('Location: /app/');
+		header('Location: /app/bootstrap.php');
 	}
 }

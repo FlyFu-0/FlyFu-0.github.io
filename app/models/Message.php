@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace Models;
 
-use App\Core\DB;
+use Core\DB;
 use PDO;
 
 class Message

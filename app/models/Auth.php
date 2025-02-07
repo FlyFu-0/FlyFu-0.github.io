@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace Models;
 
-use App\Core\DB;
+use Core\DB;
 use PDO;
 
 class Auth
 {
 
-	private $db;
+	private PDO $db;
 
 	public function __construct()
 	{

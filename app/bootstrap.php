@@ -1,34 +1,34 @@
 <?php
 
+namespace App;
+
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/app/autoloader.php';
 
-use App\Models\Message as MessageModel;
-use App\Models\Auth as AuthModel;
-
-use App\Controllers\Auth as AuthController;
-use App\Controllers\Message as MessageController;
-
-use App\Core\DB;
+use Controllers;
+use Core\DB;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/app/helpers/flash.php';
+
+
 
 $url = $_GET['url'] ?? '';
 
 switch ($url) {
 	case 'register':
-		$controller = new AuthController();
+		$controller = new Controllers\Auth();
 		$controller->register();
 		break;
 	case 'login':
-		$controller = new AuthController();
+		$controller = new Controllers\Auth();
 		$controller->login();
 		break;
 	case 'logout':
-		$controller = new AuthController();
+		$controller = new Controllers\Auth();
 		$controller->logout();
 		break;
 	default:
-		$controller = new MessageController();
+		$controller = new Controllers\Message();
 		$controller->index();
 		break;
 }
