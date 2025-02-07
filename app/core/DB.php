@@ -20,12 +20,12 @@ class DB
 
 	public static function getInstance(): PDO
 	{
-		if (!isset(self::$db)) {
+		if (!isset(static::$db)) {
 			$dsn = 'mysql:dbname=' . DBNAME . ';host=' . HOST;
-			self::$db = new PDO($dsn, USER, PASSWORD);
-			self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+			static::$db = new PDO($dsn, USER, PASSWORD);
+			static::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		}
 
-		return self::$db;
+		return static::$db;
 	}
 }

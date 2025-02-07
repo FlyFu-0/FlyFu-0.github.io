@@ -2,15 +2,12 @@
 
 namespace App;
 
-
 require_once $_SERVER['DOCUMENT_ROOT'] . '/app/autoloader.php';
 
 use Controllers;
 use Core\DB;
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/app/helpers/flash.php';
-
-
 
 $url = $_GET['url'] ?? '';
 
