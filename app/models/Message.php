@@ -32,7 +32,7 @@ class Message extends DB
             $order,
             ['user' => 'messages.user_id = user.id'],
             $startRecord,
-            $messagesPerPage,
+            $messagesPerPage
         );
 
         return [

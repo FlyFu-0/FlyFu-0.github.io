@@ -6,11 +6,22 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/app/config/config.php';
 
 use PDO;
 
+//TODO: may be use BUILDER pattern?
+/*
+ * setJoin {}
+ * setWhere {}
+ * setPagination {}
+ * setLimit {}
+ * setHaving {}
+ * & etc.
+ */
 class DB
 {
     protected static PDO $db;
 
-    public function __construct()
+    private function __construct() {}
+
+    public static function getInstance(): PDO
     {
         if (!isset(static::$db)) {
             $dsn = 'mysql:dbname=' . DBNAME . ';host=' . HOST;
@@ -50,15 +61,11 @@ class DB
     {
         $columns = implode(', ', $columns);
 
-        $joinExpression = '';
-        foreach ($joins as $joinTable => $onCondition) {
-            $joinExpression .= " JOIN $joinTable ON $onCondition";
-        }
+        $joinExpression = $this->joinExpressionBuilder($joins);
 
         $whereExpression = '';
         if (!empty($where)) {
-            $whereExpression = ' WHERE ' . implode(' OR ',
-                    array_map(fn($key) => "$key = '$where[$key]'", array_keys($where)));
+            $whereExpression = $this->whereExpressionBuilder($where);
         }
 
         $sort = isset($sortingField) ? "ORDER BY `$sortingField` $order" : '';
@@ -71,6 +78,8 @@ class DB
             $whereExpression
             $sort
             $limit";
+
+        var_dump($query);
 
         $stmt = static::$db->prepare($query);
         $stmt->execute();
@@ -112,5 +121,41 @@ class DB
         $stmt = static::$db->prepare("SELECT COUNT(*) as total FROM `$table`");
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    }
+
+    private function joinExpressionBuilder(array $joins): string
+    {
+        $joinExpression = '';
+        foreach ($joins as $joinTable => $onCondition) {
+            $joinExpression .= " JOIN $joinTable ON $onCondition";
+        }
+        return $joinExpression;
+    }
+
+    private function whereExpressionBuilder(array $where): string
+    {
+        $conditions = [];
+
+        foreach ($where as $index => $condition) {
+            $logic = strtoupper($condition['logic'] ?? 'AND');
+            $field = $condition['field'];
+            $operator = $condition['operator'] ?? '=';
+            $value = $condition['value'];
+
+            if (strtoupper($operator) === 'IN' && is_array($value)) {
+                $value = "('" . implode("', '", $value) . "')";
+            } else {
+                $value = "'$value'";
+            }
+
+            if ($index > 0) {
+                $conditions[] = $logic;
+            }
+
+            $conditions[] = "`$field` $operator $value";
+        }
+
+        $whereExpression = ' WHERE ' . implode(' ', $conditions);
+        return $whereExpression;
     }
 }

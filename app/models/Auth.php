@@ -40,12 +40,11 @@ class Auth extends DB
         $result = $this->get(
             'user',
             ['username'],
-            where: ['username' => $username,
-                'email' => $email],
+            where: [
+                ['field' => 'username', 'operator' => '=', 'value' => $username],
+                ['field' => 'email', 'operator' => '=', 'value' => $email],
+            ],
         );
-
-        echo '<pre>';
-        var_dump($result);
 
         if (count($result)) {
             flash('Username or Email already taken.');
