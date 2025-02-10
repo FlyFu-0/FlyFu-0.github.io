@@ -4,7 +4,7 @@ namespace Core;
 
 class Dispatcher
 {
-	public function getPage(Route $route)
+	public function getPage(Route $route): Page
 	{
 		$className = ucfirst($route->controller);
 		$fullName = "Controllers\\$className";
@@ -21,8 +21,7 @@ class Dispatcher
 				}
 			}
 		} catch (\Exception $e) {
-			echo $error->getMessage();
-			die();
+			return new Page('default', 'Error', 'error/notFound');
 		}
 	}
 }

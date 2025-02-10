@@ -8,6 +8,13 @@ use Models;
 
 class Message extends Controller
 {
+	public function testRow()
+	{
+		$model = new Models\Message();
+
+		$model->testRow();
+	}
+
 	public function index()
 	{
 		$username = $_SESSION['user_name'] ?? 'undefined';
@@ -66,7 +73,7 @@ class Message extends Controller
 			'totalPages' => $totalPages,
 			'user_name' => $username,
 			'user_email' => $email,
-			'$sortField' => $sortOrder,
+            'sortOrder' => $sortOrder,
 		]);
 	}
 }

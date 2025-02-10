@@ -2,70 +2,62 @@
 
 namespace Models;
 
-use core\DB;
+use Core\DB;
 use PDO;
 
-class Message
+class Message extends DB
 {
-	private PDO $db;
+    public function fetchPagedMessages(
+        $sortingField = 'created',
+        $order = 'DESC'
+    ): array {
 
-	public function __construct()
-	{
-		$this->db = DB::getInstance();
-	}
+        $sortingField = htmlspecialchars($sortingField);
+        $order = htmlspecialchars($order);
 
-	public function fetchPagedMessages(
-		$sortingField = 'created',
-		$order = 'DESC'
-	) {
-		$sortingField = htmlspecialchars($sortingField);
-		$order = htmlspecialchars($order);
+        $total = $this->count('messages');
 
-		$stmt = $this->db->query("SELECT COUNT(*) as total FROM `messages`");
-		$total = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $messagesPerPage = 25;
+        $totalPages = ceil($total / $messagesPerPage);
 
-		$messagesPerPage = 25;
-		$totalPages = ceil($total / $messagesPerPage);
+        $page = (isset($_GET['page']) && is_numeric($_GET['page'])
+            && $_GET['page'] > 0) ? min((int)$_GET['page'], $totalPages) : 1;
 
-		$page = (isset($_GET['page']) && is_numeric($_GET['page'])
-			&& $_GET['page'] > 0) ? min((int)$_GET['page'], $totalPages) : 1;
+        $startRecord = ($page * $messagesPerPage) - $messagesPerPage;
 
-		$startRecord = ($page * $messagesPerPage) - $messagesPerPage;
+        $result = $this->get(
+            'messages',
+            ['username', 'email', 'text', 'messages.create_date as created', 'filePath'],
+            $sortingField,
+            $order,
+            ['user' => 'messages.user_id = user.id'],
+            $startRecord,
+            $messagesPerPage,
+        );
 
-		$stmt = $this->db->prepare(
-			"SELECT `username`, `email`, `text`, `m`.`create_date` AS `created`, `filePath`
-            FROM `messages` m
-            JOIN `user` u ON m.user_id = u.id
-            ORDER BY `$sortingField` $order
-            LIMIT :start, :count"
-		);
-		$stmt->bindValue(':start', $startRecord, PDO::PARAM_INT);
-		$stmt->bindValue(':count', $messagesPerPage, PDO::PARAM_INT);
-		$stmt->execute();
+        return [
+            'totalPages' => $totalPages,
+            'currentPage' => $page,
+            'result' => $result,
+            'sortOrder' => $order,
+            'sortingField' => $sortingField,
+        ];
+    }
 
-		return [
-			'totalPages' => $totalPages,
-			'currentPage' => $page,
-			'result' => $stmt->fetchAll(PDO::FETCH_ASSOC)
-		];
-	}
-
-	public function createMessage(
-		string $message,
-		string $userId,
-		string $ip,
-		string $browser,
-		string $savedfilePath = null
-	): bool {
-		$stmt = $this->db->prepare(
-			"INSERT INTO `messages` (`text`, `user_id`, `filePath`, `sender_ip`, `browser`) VALUES (:message, :userId, :savedfilePath, :ip, :browser)"
-		);
-		return $stmt->execute([
-			'message' => strip_tags(htmlspecialchars(($message))),
-			'userId' => $userId,
-			'savedfilePath' => $savedfilePath,
-			'ip' => $ip,
-			'browser' => $browser
-		]);
-	}
+    public function createMessage(
+        string $message,
+        string $userId,
+        string $ip,
+        string $browser,
+        string $savedFilePath = null
+    ): bool
+    {
+        return $this->insert('messages', [
+            'text' => $message,
+            'user_id' => $userId,
+            'filePath' => $savedFilePath,
+            'sender_ip' => $ip,
+            'browser' => $browser,
+        ]);
+    }
 }

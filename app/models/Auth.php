@@ -5,121 +5,103 @@ namespace Models;
 use core\DB;
 use PDO;
 
-class Auth
+class Auth extends DB
 {
+    public function register(
+        string $username,
+        string $email,
+        string $password,
+        string $ip,
+        string $browser
+    ): void
+    {
+        $username = htmlspecialchars($username);
+        if (!ctype_alnum($username)) {
+            flash(
+                'Username invalid format! Can contains only digits and letters.'
+            );
+            header('Location: /register/');
+            die;
+        }
 
-	private PDO $db;
+        $email = htmlspecialchars($email);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            flash('Email invalid format!');
+            header('Location: /register/');
+            die;
+        }
 
-	public function __construct()
-	{
-		$this->db = DB::getInstance();
-	}
+        if (strlen($password) < 5) {
+            flash('Password must be at least 6 characters long!');
+            header('Location: /register/');
+            die;
+        }
 
-	public function register(
-		string $username,
-		string $email,
-		string $password,
-		string $ip,
-		string $browser
-	) {
-		$username = htmlspecialchars($username);
-		if (!ctype_alnum($username)) {
-			flash(
-				'Username invalid format! Can contains only digits and letters.'
-			);
-			header('Location: register/');
-			die;
-		}
+        $result = $this->get(
+            'user',
+            ['username'],
+            where: ['username' => $username,
+                'email' => $email],
+        );
 
-		$email = htmlspecialchars($email);
-		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			flash('Email invalid format!');
-			header('Location: register/');
-			die;
-		}
+        echo '<pre>';
+        var_dump($result);
 
-		if (strlen($password) < 5) {
-			flash('Password must be at least 6 characters long!');
-			header('Location: register/');
-			die;
-		}
+        if (count($result)) {
+            flash('Username or Email already taken.');
+            header('Location: /register/');
+            die;
+        }
 
-		$stmt = $this->db->prepare(
-			"SELECT `username` FROM `user` WHERE `username` = :username OR `email` = :email"
-		);
-		$stmt->execute([
-			'username' => $username,
-			'email' => $email
-		]);
+        $password = htmlspecialchars($password);
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-		if ($stmt->rowCount() > 0) {
-			flash('Username or Email already taken.');
-			header('Location: register/');
-			die;
-		}
+        $res = $this->insert('user',
+            ['username' => $username,
+                'email' => $email,
+                'passwordHash' => $passwordHash,
+                'register_ip' => $ip,
+                'browser' => $browser,
+            ]);
 
-		$password = htmlspecialchars($password);
-		$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        header('Location: /login/');
+    }
 
-		$stmt = $this->db->prepare(
-			"INSERT INTO `user` (`username`, `email`, `passwordHash`, `register_ip`, `browser`) VALUES (:username, :email, :passwordHash, :ip, :browser)"
-		);
-		$stmt->execute([
-			'username' => $username,
-			'passwordHash' => $passwordHash,
-			'email' => $email,
-			'ip' => $ip,
-			'browser' => $browser
-		]);
+    public function login(string $username, string $password)
+    {
+        $username = htmlspecialchars($username);
 
-		header('Location: login/');
-	}
+        $user = $this->get('user',
+            ['id', 'username', 'email', 'passwordHash'],
+            where: ['username' => $username,])[0];
 
-	public function login(string $username, string $password)
-	{
-		$username = htmlspecialchars($username);
+        if (!isset($user)) {
+            flash('Username is incorrect.');
+            header('Location: /login/');
+            die;
+        }
 
-		$stmt = $this->db->prepare(
-			"SELECT `id`, `username`, `email`, `passwordHash` FROM `user` WHERE `username` = :username"
-		);
-		$stmt->execute([
-			'username' => $username
-		]);
-		if (!$stmt->rowCount()) {
-			flash('Username is incorrect.');
-			header('Location: login/');
-			die;
-		}
+        if (password_verify($password, $user['passwordHash'])) {
+            if (password_needs_rehash(
+                $user['passwordHash'],
+                PASSWORD_DEFAULT
+            )
+            ) {
+                $newHash = password_hash(
+                    $_POST['passwordHash'],
+                    PASSWORD_DEFAULT
+                );
+                $hashUpdate = $this->update('user', ['passwordHash' => $newHash], ['username' => $username]);
+            }
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['username'];
+            $_SESSION['user_email'] = $user['email'];
+            flash('Login successfully!');
+            header('Location: /');
+            die;
+        }
 
-		$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-		if (password_verify($password, $user['passwordHash'])) {
-			if (password_needs_rehash(
-				$user['passwordHash'],
-				PASSWORD_DEFAULT
-			)
-			) {
-				$newHash = password_hash(
-					$_POST['passwordHash'],
-					PASSWORD_DEFAULT
-				);
-				$hashUpdate = $this->db->prepare(
-					"UPDATE `user` SET `passwordHash` = :newHash WHERE `username` = :username"
-				);
-				$hashUpdate->execute([
-					'username' => $username,
-					'passwordHash' => $newHash
-				]);
-			}
-			$_SESSION['user_id'] = $user['id'];
-			$_SESSION['user_name'] = $user['username'];
-			$_SESSION['user_email'] = $user['email'];
-			flash('Login successfully!');
-			header('Location: /');
-			die;
-		}
-
-		flash('Password is incorrect.');
-		header('Location: login/');
-	}
+        flash('Password is incorrect.');
+        header('Location: /login/');
+    }
 }

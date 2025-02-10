@@ -6,7 +6,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/app/autoloader.php';
 
 use Core;
 
-Core\DB::getInstance();
+session_start();
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/app/helpers/flash.php';
 

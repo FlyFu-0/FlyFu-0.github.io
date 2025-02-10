@@ -6,24 +6,111 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/app/config/config.php';
 
 use PDO;
 
-session_start();
-
 class DB
 {
-	private static PDO $db;
+    protected static PDO $db;
 
-	private function __construct()
-	{
-	}
+    public function __construct()
+    {
+        if (!isset(static::$db)) {
+            $dsn = 'mysql:dbname=' . DBNAME . ';host=' . HOST;
+            static::$db = new PDO($dsn, USER, PASSWORD);
+            static::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        }
 
-	public static function getInstance(): PDO
-	{
-		if (!isset(static::$db)) {
-			$dsn = 'mysql:dbname=' . DBNAME . ';host=' . HOST;
-			static::$db = new PDO($dsn, USER, PASSWORD);
-			static::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-		}
+        return static::$db;
+    }
 
-		return static::$db;
-	}
+    public function getRow(string $table, array $columns = ['*']): array
+    {
+        $columns = implode(',', $columns);
+        $stmt = static::$db->prepare("SELECT $columns FROM `$table`");
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getAll(string $table, array $params = ['*']): array
+    {
+        $params = implode(',', $params);
+        $stmt = static::$db->prepare("SELECT $params FROM `$table`");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function get(
+        string $table,
+        array  $columns = ['*'],
+        string $sortingField = null,
+        string $order = 'ASC',
+        array  $joins = [],
+        int    $startRecord = 0,
+        int    $countPerPage = null,
+        array  $where = [],
+    ): array
+    {
+        $columns = implode(', ', $columns);
+
+        $joinExpression = '';
+        foreach ($joins as $joinTable => $onCondition) {
+            $joinExpression .= " JOIN $joinTable ON $onCondition";
+        }
+
+        $whereExpression = '';
+        if (!empty($where)) {
+            $whereExpression = ' WHERE ' . implode(' OR ',
+                    array_map(fn($key) => "$key = '$where[$key]'", array_keys($where)));
+        }
+
+        $sort = isset($sortingField) ? "ORDER BY `$sortingField` $order" : '';
+        $limit = isset($countPerPage) ? "LIMIT $startRecord, $countPerPage" : '';
+
+        $query = "
+            SELECT $columns
+            FROM `$table`
+            $joinExpression
+            $whereExpression
+            $sort
+            $limit";
+
+        $stmt = static::$db->prepare($query);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function insert(string $table, array $data): bool
+    {
+        $columns = implode(', ', array_keys($data));
+
+        $placeholders = implode(', ', array_map(fn($key) => $key = ":$key", array_keys($data)));
+
+        $stmt = static::$db->prepare("INSERT INTO `$table` ($columns) VALUES($placeholders)");
+
+        return $stmt->execute($data);
+    }
+
+    public function update(string $table, array $data, array $where, string $conditionSeparator = 'AND'): bool
+    {
+        $setClauses = implode(', ', array_map(fn($key) => "`$key` = :$key", array_keys($data)));
+
+        $whereClauses = implode(" $conditionSeparator ", array_map(fn($key) => "`$key` = :where_$key", array_keys($where)));
+
+        $query = "UPDATE `$table` SET $setClauses WHERE $whereClauses";
+
+        $stmt = static::$db->prepare($query);
+
+        $params = array_merge($data, array_combine(
+            array_map(fn($key) => "where_$key", array_keys($where)),
+            array_values($where)
+        ));
+
+        return $stmt->execute($params);
+    }
+
+    public function count(string $table): int
+    {
+        $stmt = static::$db->prepare("SELECT COUNT(*) as total FROM `$table`");
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+    }
 }

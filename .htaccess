@@ -1,5 +1,5 @@
 RewriteEngine On
 RewriteBase /
 
-RewriteCond %{REQUEST_URI} !^/app/upload/
+RewriteCond %{REQUEST_URI} !^/upload/
 RewriteRule .+ index.php
