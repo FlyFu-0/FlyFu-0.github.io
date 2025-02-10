@@ -7,10 +7,10 @@
     <title>Chat PHP Application - <?= $title ?></title>
 </head>
 <body>
-<?php  if ($message): ?>
+<?php if ($message): ?>
     <label>
         <input type="checkbox" class="alertCheckbox" autocomplete="off"/>
-        <div class="alert notice">
+        <div class="alert warning">
         <span class="alertText"><?= $message ?>
     <br class="clear"/></span>
         </div>

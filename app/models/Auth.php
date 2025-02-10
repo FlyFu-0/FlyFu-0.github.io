@@ -24,16 +24,16 @@ class Auth
 	) {
 		$username = htmlspecialchars($username);
 		if (!ctype_alnum($username)) {
-			return 'Username invalid format! Can contains only digits and letters';
+			throw new \Exception('Username invalid format! Can contains only digits and letters');
 		}
 
 		$email = htmlspecialchars($email);
 		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			return 'Email invalid format!';
+			throw new \Exception( 'Email invalid format!');
 		}
 
 		if (strlen($password) < 5) {
-			return 'Password must be at least 6 characters long!';
+			throw new \Exception('Password must be at least 6 characters long!');
 		}
 
 		$stmt = $this->db->prepare(
@@ -45,7 +45,7 @@ class Auth
 		]);
 
 		if ($stmt->rowCount() > 0) {
-			return 'Username or Email already taken';
+			throw new \Exception('Username or Email already taken');
 		}
 
 		$password = htmlspecialchars($password);
@@ -76,7 +76,7 @@ class Auth
 			'username' => $username
 		]);
 		if (!$stmt->rowCount()) {
-			return 'Username is incorrect';
+			throw new \Exception('Username is incorrect');
 		}
 
 		$user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -106,6 +106,6 @@ class Auth
 			die;
 		}
 
-		return 'Password is incorrect';
+		throw new \Exception('Password is incorrect');
 	}
 }

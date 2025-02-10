@@ -14,7 +14,7 @@ class FileModel
 		$this->uploadPath = $_SERVER['DOCUMENT_ROOT'] . '/upload/';
 	}
 
-	public function saveFile(&$savedFilePath)
+	public function saveFile(): string
 	{
 		$file = $_FILES['file'];
 		$fileName = $file['name'];
@@ -22,12 +22,12 @@ class FileModel
 		$fileTmpPath = $file['tmp_name'];
 		$fileExtension = pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
 
-		if ($this->isExtensionValid($fileExtension)) {
-			return 'Unexpected file type! Allowed: TXT, JPG, GIF, PNG.';
+		if ($this->isExtensionNotValid($fileExtension)) {
+			throw new \Exception('Unexpected file type! Allowed: TXT, JPG, GIF, PNG');
 		}
 
 		if ($this->isSizeValid($fileSize)) {
-			return 'File size exceeds limit of 100KB!';
+			throw new \Exception('File size exceeds limit of 100KB!');
 		}
 
 		if ($this->isImage($fileExtension)
@@ -35,21 +35,19 @@ class FileModel
 				$fileTmpPath
 			)
 		) {
-			return "Image exceeds allowed resolution. Allowed resolution: 320x240!";
+			throw new \Exception('Image exceeds allowed resolution. Allowed resolution: 320x240!');
 		}
 
 		$storageFileName = time() . "_" . $fileName;
 		$storageFilePath = $this->uploadPath . $storageFileName;
 		if (!move_uploaded_file($fileTmpPath, $storageFilePath)) {
-			return "Error saving the file!";
-		} else {
-			$savedFilePath = $storageFileName;
+			throw new \Exception('Error saving the file!');
 		}
 
-		return '';
+		return $storageFileName;
 	}
 
-	private function isExtensionValid($fileExtension): bool
+	private function isExtensionNotValid($fileExtension): bool
 	{
 		return !in_array(
 			$fileExtension,

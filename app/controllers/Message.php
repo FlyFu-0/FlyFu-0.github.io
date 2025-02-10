@@ -8,73 +8,73 @@ use Models;
 
 class Message extends Controller
 {
-	public function index()
-	{
-		$username = $_SESSION['user_name'] ?? 'undefined';
-		$email = $_SESSION['user_email'] ?? 'undefined';
+    public function index()
+    {
+        $this->title = 'Messages';
 
-		$sortField = $_GET['sort'] ?? 'created';
-		$sortOrder = isset($_GET['order']) && $_GET['order'] === 'asc' ? 'asc'
-			: 'desc';
+        $username = $_SESSION['user_name'] ?? 'undefined';
+        $email = $_SESSION['user_email'] ?? 'undefined';
 
-		$model = new Models\Message();
-		$result = $model->fetchPagedMessages($sortField, $sortOrder);
+        $sortField = $_GET['sort'] ?? 'created';
+        $sortOrder = isset($_GET['order']) && $_GET['order'] === 'asc' ? 'asc'
+            : 'desc';
 
-		$messages = $result['result'];
-		$currentPage = $result['currentPage'];
-		$totalPages = $result['totalPages'];
+        $model = new Models\Message();
+        $result = $model->fetchPagedMessages($sortField, $sortOrder);
 
-		$savedFilePath = null;
-		$savingFileResult = '';
+        $messages = $result['result'];
+        $currentPage = $result['currentPage'];
+        $totalPages = $result['totalPages'];
 
-		if (!empty($_POST)) {
-			$message = trim(htmlspecialchars($_POST['message'] ?? ''));
+        if (!empty($_POST)) {
 
-			if (!empty($message)) {
-				if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
-					$fileModel = new Models\FileModel();
+            try {
+                $message = trim(htmlspecialchars($_POST['message'] ?? ''));
 
-					$savingFileResult = $fileModel->saveFile($savedFilePath);
+                if (empty($message)) {
+                    throw new \Exception('Please enter a message');
+                }
 
-					if (!$savingFileResult) {
-						$model->createMessage(
-							$message,
-							$_SESSION['user_id'],
-							Tools::get_ip(),
-							$_SERVER['HTTP_USER_AGENT'],
-							$savedFilePath
-						);
-						header('Location: /');
-						die;
-					}
-				} else {
-					$model->createMessage(
-						$message,
-						$_SESSION['user_id'],
-						Tools::get_ip(),
-						$_SERVER['HTTP_USER_AGENT'],
-					);
-					header('Location: /');
-					die;
-				}
-			} else {
-				return 'Please enter a message';
-			}
-		}
+                if (!isset($_FILES['file']) && !empty($_FILES['file']['error'])) {
+                    $model->createMessage(
+                        $message,
+                        $_SESSION['user_id'],
+                        Tools::get_ip(),
+                        $_SERVER['HTTP_USER_AGENT'],
+                    );
+                    header('Location: /');
+                    die;
+                }
 
-		$this->title = 'Messages';
-		$this->message = $savingFileResult;
+                $fileModel = new Models\FileModel();
 
-		return $this->render(
-			'messages/index',
-			$data = [
-				'messages' => $messages,
-				'currentPage' => $currentPage,
-				'totalPages' => $totalPages,
-				'user_name' => $username,
-				'user_email' => $email,
-				'$sortField' => $sortOrder,
-			]
-		);
-	}
+                $savedFilePath = $fileModel->saveFile();
+
+                if ($savedFilePath) {
+                    $model->createMessage(
+                        $message,
+                        $_SESSION['user_id'],
+                        Tools::get_ip(),
+                        $_SERVER['HTTP_USER_AGENT'],
+                        $savedFilePath
+                    );
+                    header('Location: /');
+                    die;
+                }
+            } catch
+            (\Exception $e) {
+                $this->error = $e->getMessage();
+            }
+        }
+
+        return $this->render(
+            'messages/index',
+            $data = ['messages' => $messages,
+                'currentPage' => $currentPage,
+                'totalPages' => $totalPages,
+                'user_name' => $username,
+                'user_email' => $email,
+                '$sortField' => $sortOrder,]
+        );
+    }
 }
