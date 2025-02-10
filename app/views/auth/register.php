@@ -2,7 +2,6 @@
     <div class="nav">
         <a href="<?= $_SERVER['HTTP_REFERER'] ?>">Back</a>
     </div>
-    <?php flash(); ?>
     <form action="register" method="post" class="auth-form">
         <input type="text" placeholder="Username" name="username" required autofocus maxlength="50" />
         <input type="email" placeholder="Email" name="email" required maxlength="100" />

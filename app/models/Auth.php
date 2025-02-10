@@ -24,24 +24,16 @@ class Auth
 	) {
 		$username = htmlspecialchars($username);
 		if (!ctype_alnum($username)) {
-			flash(
-				'Username invalid format! Can contains only digits and letters.'
-			);
-			header('Location: register/');
-			die;
+			return 'Username invalid format! Can contains only digits and letters';
 		}
 
 		$email = htmlspecialchars($email);
 		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			flash('Email invalid format!');
-			header('Location: register/');
-			die;
+			return 'Email invalid format!';
 		}
 
 		if (strlen($password) < 5) {
-			flash('Password must be at least 6 characters long!');
-			header('Location: register/');
-			die;
+			return 'Password must be at least 6 characters long!';
 		}
 
 		$stmt = $this->db->prepare(
@@ -53,9 +45,7 @@ class Auth
 		]);
 
 		if ($stmt->rowCount() > 0) {
-			flash('Username or Email already taken.');
-			header('Location: register/');
-			die;
+			return 'Username or Email already taken';
 		}
 
 		$password = htmlspecialchars($password);
@@ -72,7 +62,7 @@ class Auth
 			'browser' => $browser
 		]);
 
-		header('Location: login/');
+		header('Location: /login/');
 	}
 
 	public function login(string $username, string $password)
@@ -86,9 +76,7 @@ class Auth
 			'username' => $username
 		]);
 		if (!$stmt->rowCount()) {
-			flash('Username is incorrect.');
-			header('Location: login/');
-			die;
+			return 'Username is incorrect';
 		}
 
 		$user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -114,12 +102,10 @@ class Auth
 			$_SESSION['user_id'] = $user['id'];
 			$_SESSION['user_name'] = $user['username'];
 			$_SESSION['user_email'] = $user['email'];
-			flash('Login successfully!');
 			header('Location: /');
 			die;
 		}
 
-		flash('Password is incorrect.');
-		header('Location: login/');
+		return 'Password is incorrect';
 	}
 }

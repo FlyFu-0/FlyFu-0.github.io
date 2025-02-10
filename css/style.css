@@ -159,3 +159,43 @@ table, td {
 .error-container > a:hover {
     background-color: #e6482e;
 }
+
+.alert {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: auto;
+    height: auto;
+    padding: 10px;
+    margin: 10px;
+    line-height: 1.8;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: sans-serif;
+    font-weight: 400;
+}
+
+.alertCheckbox {
+    display: none;
+}
+
+:checked + .alert {
+    display: none;
+}
+
+.alertText {
+    display: table;
+    margin: 0;
+    text-align: center;
+    font-size: 16px;
+}
+
+.clear {
+    clear: both;
+}
+
+.notice {
+    background-color: #EFF;
+    border: 1px solid #DEE;
+    color: #6989ab;
+}

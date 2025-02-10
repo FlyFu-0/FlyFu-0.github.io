@@ -25,6 +25,7 @@ class Message extends Controller
 		$totalPages = $result['totalPages'];
 
 		$savedFilePath = null;
+		$savingFileResult = '';
 
 		if (!empty($_POST)) {
 			$message = trim(htmlspecialchars($_POST['message'] ?? ''));
@@ -32,7 +33,10 @@ class Message extends Controller
 			if (!empty($message)) {
 				if (isset($_FILES['file']) && empty($_FILES['file']['error'])) {
 					$fileModel = new Models\FileModel();
-					if ($fileModel->saveFile($savedFilePath)) {
+
+					$savingFileResult = $fileModel->saveFile($savedFilePath);
+
+					if (!$savingFileResult) {
 						$model->createMessage(
 							$message,
 							$_SESSION['user_id'],
@@ -54,19 +58,23 @@ class Message extends Controller
 					die;
 				}
 			} else {
-				flash('Please enter a message');
+				return 'Please enter a message';
 			}
 		}
 
 		$this->title = 'Messages';
+		$this->message = $savingFileResult;
 
-		return $this->render('messages/index', $data = [
-			'messages' => $messages,
-			'currentPage' => $currentPage,
-			'totalPages' => $totalPages,
-			'user_name' => $username,
-			'user_email' => $email,
-			'$sortField' => $sortOrder,
-		]);
+		return $this->render(
+			'messages/index',
+			$data = [
+				'messages' => $messages,
+				'currentPage' => $currentPage,
+				'totalPages' => $totalPages,
+				'user_name' => $username,
+				'user_email' => $email,
+				'$sortField' => $sortOrder,
+			]
+		);
 	}
 }

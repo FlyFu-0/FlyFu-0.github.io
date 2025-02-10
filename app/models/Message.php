@@ -18,6 +18,7 @@ class Message
 		$sortingField = 'created',
 		$order = 'DESC'
 	) {
+
 		$sortingField = htmlspecialchars($sortingField);
 		$order = htmlspecialchars($order);
 
