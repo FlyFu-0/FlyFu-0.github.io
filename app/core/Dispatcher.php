@@ -10,6 +10,7 @@ class Dispatcher
 		$fullName = "Controllers\\$className";
 
 		try {
+
 			$controller = new $fullName;
 			if (method_exists($controller, $route->action)) {
 				$result = $controller->{$route->action}();
@@ -21,8 +22,7 @@ class Dispatcher
 				}
 			}
 		} catch (\Exception $e) {
-			echo $error->getMessage();
-			die();
+			throw $e;
 		}
 	}
 }
