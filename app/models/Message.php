@@ -59,7 +59,6 @@ class Message
 		string $browser,
 		string $savedfilePath = null
 	): bool {
-        throw new \Exception('Not implemented');
 		$stmt = $this->db->prepare(
 			"INSERT INTO `messages` (`text`, `user_id`, `filePath`, `sender_ip`, `browser`) VALUES (:message, :userId, :savedfilePath, :ip, :browser)"
 		);

@@ -44,7 +44,7 @@ class FileModel
 			throw new \Exception('Error saving the file!');
 		}
 
-		return $storageFileName;
+		return $storageFilePath;
 	}
 
 	private function isExtensionNotValid($fileExtension): bool

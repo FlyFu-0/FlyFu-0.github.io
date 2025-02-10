@@ -27,7 +27,7 @@ class Message extends Controller
         $totalPages = $result['totalPages'];
 
         if (!empty($_POST)) {
-
+            
             try {
                 $message = trim(htmlspecialchars($_POST['message'] ?? ''));
 
@@ -61,8 +61,12 @@ class Message extends Controller
                     header('Location: /');
                     die;
                 }
-            } catch
-            (\Exception $e) {
+            } catch (\Exception $e) {
+
+                if (isset($savedFilePath) && file_exists($savedFilePath)) {
+                    unlink($savedFilePath);
+                }
+
                 $this->error = $e->getMessage();
             }
         }
