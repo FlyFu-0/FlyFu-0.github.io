@@ -2,10 +2,10 @@
 
 namespace Models;
 
-use core\DBConnector;
+use Core;
 use PDO;
 
-class Auth extends DBConnector
+class Auth extends Core\DBBuilder implements Core\haveTable
 {
     public function register(
         string $username,
@@ -37,14 +37,14 @@ class Auth extends DBConnector
             die;
         }
 
-        $result = $this->get(
-            'user',
-            ['username'],
-            where: [
+        $result = (new Core\DBBuilder())
+            ->setSelect(['username'])
+            ->setFrom('user')
+            ->setWhere([
                 ['field' => 'username', 'operator' => '=', 'value' => $username],
                 ['field' => 'email', 'operator' => '=', 'value' => $email],
-            ],
-        );
+            ])
+            ->execute();
 
         if (count($result)) {
             flash('Username or Email already taken.');
@@ -55,13 +55,17 @@ class Auth extends DBConnector
         $password = htmlspecialchars($password);
         $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-        $res = $this->insert('user',
-            ['username' => $username,
+        (new Core\DBBuilder())
+            ->setInsert()
+            ->setTable($this->getTable())
+            ->setInsertData(['username' => $username,
                 'email' => $email,
                 'passwordHash' => $passwordHash,
                 'register_ip' => $ip,
                 'browser' => $browser,
-            ]);
+            ])
+            ->execute()
+        ;
 
         header('Location: /login/');
     }
@@ -70,9 +74,11 @@ class Auth extends DBConnector
     {
         $username = htmlspecialchars($username);
 
-        $user = $this->get('user',
-            ['id', 'username', 'email', 'passwordHash'],
-            where: ['username' => $username,])[0];
+        $user = (new Core\DBBuilder())
+            ->setSelect(['id', 'username', 'email', 'passwordHash'])
+            ->setFrom($this->getTable())
+            ->setWhere([['field' => 'username', 'operator' => '=', 'value' => $username]])
+            ->execute()[0];
 
         if (!isset($user)) {
             flash('Username is incorrect.');
@@ -90,7 +96,9 @@ class Auth extends DBConnector
                     $_POST['passwordHash'],
                     PASSWORD_DEFAULT
                 );
-                $hashUpdate = $this->update('user', ['passwordHash' => $newHash], ['username' => $username]);
+                $hashUpdate = (new Core\DBBuilder())
+                    ->set
+                    ->update('user', ['passwordHash' => $newHash], ['username' => $username]);
             }
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['username'];
@@ -102,5 +110,10 @@ class Auth extends DBConnector
 
         flash('Password is incorrect.');
         header('Location: /login/');
+    }
+
+    function getTable(): string
+    {
+        return 'user';
     }
 }
