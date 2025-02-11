@@ -21,7 +21,8 @@ class Dispatcher
 				}
 			}
 		} catch (\Exception $e) {
-			return new Page('default', 'Error', 'error/notFound');
+			echo "<script>console.log($e))</script>";
+			return new Page('default', 'Dispatcher Error', 'error/notFound');
 		}
 	}
 }

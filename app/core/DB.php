@@ -2,160 +2,130 @@
 
 namespace Core;
 
-require_once $_SERVER['DOCUMENT_ROOT'] . '/app/config/config.php';
-
-use PDO;
-
-//TODO: may be use BUILDER pattern?
-/*
- * setJoin {}
- * setWhere {}
- * setPagination {}
- * setLimit {}
- * setHaving {}
- * & etc.
- */
 class DB
 {
-    protected static PDO $db;
+	const ORDER_ASC = 'ASC';
+	const ORDER_DESC = 'DESC';
+	protected \PDO $db;
+	private $select;
+	private $from;
+	private $join;
+	private $where;
+	private $order;
+	private $limit;
+	private $paged;
+	private $query;
 
-    private function __construct() {}
+	public function __construct()
+	{
+		$this->db = DBConnector::getInstance();
+	}
 
-    public static function getInstance(): PDO
-    {
-        if (!isset(static::$db)) {
-            $dsn = 'mysql:dbname=' . DBNAME . ';host=' . HOST;
-            static::$db = new PDO($dsn, USER, PASSWORD);
-            static::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        }
+	public function setSelect($columns): self
+	{
+		$this->select = "SELECT " . implode(', ', $columns);
+		return $this;
+	}
 
-        return static::$db;
-    }
+	public function setInsert($table, $data): self
+	{
+		$columns = "`" . implode("`, `", array_keys($data)) . "`";
 
-    public function getRow(string $table, array $columns = ['*']): array
-    {
-        $columns = implode(',', $columns);
-        $stmt = static::$db->prepare("SELECT $columns FROM `$table`");
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+		$values = "'" . implode("', '", array_values($data)) . "'";
 
-    public function getAll(string $table, array $params = ['*']): array
-    {
-        $params = implode(',', $params);
-        $stmt = static::$db->prepare("SELECT $params FROM `$table`");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+		$this->query = "INSERT INTO `$table` ($columns) VALUES ($values)";
 
-    public function get(
-        string $table,
-        array  $columns = ['*'],
-        string $sortingField = null,
-        string $order = 'ASC',
-        array  $joins = [],
-        int    $startRecord = 0,
-        int    $countPerPage = null,
-        array  $where = [],
-    ): array
-    {
-        $columns = implode(', ', $columns);
+//		var_dump($this->query);
 
-        $joinExpression = $this->joinExpressionBuilder($joins);
+		return $this;
+	}
 
-        $whereExpression = '';
-        if (!empty($where)) {
-            $whereExpression = $this->whereExpressionBuilder($where);
-        }
+	public function setFrom($table): self
+	{
+		$this->from = " FROM `$table`";
+		return $this;
+	}
 
-        $sort = isset($sortingField) ? "ORDER BY `$sortingField` $order" : '';
-        $limit = isset($countPerPage) ? "LIMIT $startRecord, $countPerPage" : '';
+	public function setJoin($joins): self
+	{
+		foreach ($joins as $joinTable => $onCondition) {
+			$this->join .= " JOIN `$joinTable` ON $onCondition";
+		}
+		return $this;
+	}
 
-        $query = "
-            SELECT $columns
-            FROM `$table`
-            $joinExpression
-            $whereExpression
-            $sort
-            $limit";
+	public function setWhere(array $where): string
+	{
+		$conditions = [];
 
-        var_dump($query);
+		foreach ($where as $index => $condition) {
+			$logic = strtoupper($condition['logic'] ?? 'AND');
+			$field = $condition['field'];
+			$operator = $condition['operator'] ?? '=';
+			$value = $condition['value'];
 
-        $stmt = static::$db->prepare($query);
-        $stmt->execute();
+			if (strtoupper($operator) === 'IN' && is_array($value)) {
+				$value = "('" . implode("', '", $value) . "')";
+			} else {
+				$value = "'$value'";
+			}
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+			if ($index > 0) {
+				$conditions[] = $logic;
+			}
 
-    public function insert(string $table, array $data): bool
-    {
-        $columns = implode(', ', array_keys($data));
+			$conditions[] = "`$field` $operator $value";
+		}
 
-        $placeholders = implode(', ', array_map(fn($key) => $key = ":$key", array_keys($data)));
+		return $this->where = ' WHERE ' . implode(' ', $conditions);
+	}
 
-        $stmt = static::$db->prepare("INSERT INTO `$table` ($columns) VALUES($placeholders)");
+	public function setOrder(
+		string $column,
+		string $order = self::ORDER_ASC
+	): DB {
+		if (!$this->order) {
+			$this->order = " ORDER BY $column $order";
+		} else {
+			$this->order .= ", $column $order";
+		}
+		return $this;
+	}
 
-        return $stmt->execute($data);
-    }
+	public function execute()
+	{
+		$this->query ??= "
+			$this->select 
+			$this->from
+			$this->join
+			$this->where
+			$this->order
+			" . ($this->paged ?? $this->limit);
 
-    public function update(string $table, array $data, array $where, string $conditionSeparator = 'AND'): bool
-    {
-        $setClauses = implode(', ', array_map(fn($key) => "`$key` = :$key", array_keys($data)));
+		$stmt = $this->db->prepare($this->query);
+		$stmt->execute();
 
-        $whereClauses = implode(" $conditionSeparator ", array_map(fn($key) => "`$key` = :where_$key", array_keys($where)));
+		var_dump($this->query);
+		echo "<script>console.log($this->query)</script>";
 
-        $query = "UPDATE `$table` SET $setClauses WHERE $whereClauses";
+		return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+	}
 
-        $stmt = static::$db->prepare($query);
+	public function setLimit(int $limit): self
+	{
+		$this->limit = " LIMIT $limit";
+		return $this;
+	}
 
-        $params = array_merge($data, array_combine(
-            array_map(fn($key) => "where_$key", array_keys($where)),
-            array_values($where)
-        ));
+	public function setPaged(int $start, int $countOnPage): self
+	{
+		$this->paged = " LIMIT $start, $countOnPage";
+		return $this;
+	}
 
-        return $stmt->execute($params);
-    }
+	public function __get(string $name)
+	{
+		return $this->$name;
+	}
 
-    public function count(string $table): int
-    {
-        $stmt = static::$db->prepare("SELECT COUNT(*) as total FROM `$table`");
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-    }
-
-    private function joinExpressionBuilder(array $joins): string
-    {
-        $joinExpression = '';
-        foreach ($joins as $joinTable => $onCondition) {
-            $joinExpression .= " JOIN $joinTable ON $onCondition";
-        }
-        return $joinExpression;
-    }
-
-    private function whereExpressionBuilder(array $where): string
-    {
-        $conditions = [];
-
-        foreach ($where as $index => $condition) {
-            $logic = strtoupper($condition['logic'] ?? 'AND');
-            $field = $condition['field'];
-            $operator = $condition['operator'] ?? '=';
-            $value = $condition['value'];
-
-            if (strtoupper($operator) === 'IN' && is_array($value)) {
-                $value = "('" . implode("', '", $value) . "')";
-            } else {
-                $value = "'$value'";
-            }
-
-            if ($index > 0) {
-                $conditions[] = $logic;
-            }
-
-            $conditions[] = "`$field` $operator $value";
-        }
-
-        $whereExpression = ' WHERE ' . implode(' ', $conditions);
-        return $whereExpression;
-    }
 }

@@ -2,62 +2,99 @@
 
 namespace Models;
 
-use Core\DB;
+use Core;
 use PDO;
 
-class Message extends DB
+class Message extends Core\DBBuilder implements Core\haveTable
 {
-    public function fetchPagedMessages(
-        $sortingField = 'created',
-        $order = 'DESC'
-    ): array {
 
-        $sortingField = htmlspecialchars($sortingField);
-        $order = htmlspecialchars($order);
+	public function fetchPagedMessages(
+		$sortingField = 'created',
+		$order = 'DESC'
+	): array {
+//		$db = (new Core\DBBuilder())
+//			->setSelect(['username', 'email'])
+//			->setFrom($this->getTable())
+//			->setWhere([
+//				['field' => 'username', 'operator' => '=', 'value' => 'user1'],
+//                ['field' => 'email', 'operator' => '=', 'value' => 'user1@mail.com'],
+//			])
+//		;
+//
+//		echo '<pre>';
+//		var_dump($db);
 
-        $total = $this->count('messages');
+		$sortingField = htmlspecialchars($sortingField);
+		$order = htmlspecialchars($order);
 
-        $messagesPerPage = 25;
-        $totalPages = ceil($total / $messagesPerPage);
+		$total = (new Core\DBBuilder())
+			->setSelect(['COUNT(*)'])
+			->setFrom($this->getTable())
+			->execute()[0]['COUNT(*)'];
 
-        $page = (isset($_GET['page']) && is_numeric($_GET['page'])
-            && $_GET['page'] > 0) ? min((int)$_GET['page'], $totalPages) : 1;
+		$messagesPerPage = 25;
+		$totalPages = ceil($total / $messagesPerPage);
 
-        $startRecord = ($page * $messagesPerPage) - $messagesPerPage;
+		$page = (isset($_GET['page']) && is_numeric($_GET['page'])
+			&& $_GET['page'] > 0) ? min((int)$_GET['page'], $totalPages) : 1;
 
-        $result = $this->get(
-            'messages',
-            ['username', 'email', 'text', 'messages.create_date as created', 'filePath'],
-            $sortingField,
-            $order,
-            ['user' => 'messages.user_id = user.id'],
-            $startRecord,
-            $messagesPerPage
-        );
+		$startRecord = ($page * $messagesPerPage) - $messagesPerPage;
 
-        return [
-            'totalPages' => $totalPages,
-            'currentPage' => $page,
-            'result' => $result,
-            'sortOrder' => $order,
-            'sortingField' => $sortingField,
-        ];
-    }
+		$result = (new Core\DBBuilder())
+			->setSelect(
+				[
+					'username',
+					'email',
+					'text',
+					$this->getTable() . '.create_date as created',
+					'filePath'
+				]
+			)
+			->setFrom($this->getTable())
+			->setJoin(['user' => 'messages.user_id = user.id'])
+			->setOrder('created', Core\DB::ORDER_DESC)
+			->setOrder('email')
+			->setOrder('username')
+			->setPaged($startRecord, $messagesPerPage)
+			->execute();
 
-    public function createMessage(
-        string $message,
-        string $userId,
-        string $ip,
-        string $browser,
-        string $savedFilePath = null
-    ): bool
-    {
-        return $this->insert('messages', [
-            'text' => $message,
-            'user_id' => $userId,
-            'filePath' => $savedFilePath,
-            'sender_ip' => $ip,
-            'browser' => $browser,
-        ]);
-    }
+		return [
+			'totalPages' => $totalPages,
+			'currentPage' => $page,
+			'result' => $result,
+			'sortOrder' => $order,
+			'sortingField' => $sortingField,
+		];
+	}
+
+	public function getTable(): string
+	{
+		return 'messages';
+	}
+
+	public function createMessage(
+		string $message,
+		string $userId,
+		string $ip,
+		string $browser,
+		string $savedFilePath = null
+	) {
+		return (new Core\DBBuilder())
+			->setInsert($this->getTable(), [
+				'text' => $message,
+				'user_id' => $userId,
+				'filePath' => $savedFilePath,
+				'sender_ip' => $ip,
+				'browser' => $browser,
+			])
+			->execute()
+		;
+//		return $this->insert('messages', [
+//			'text' => $message,
+//			'user_id' => $userId,
+//			'filePath' => $savedFilePath,
+//			'sender_ip' => $ip,
+//			'browser' => $browser,
+//		]);
+	}
 }

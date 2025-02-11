@@ -2,10 +2,10 @@
 
 namespace Models;
 
-use core\DB;
+use core\DBConnector;
 use PDO;
 
-class Auth extends DB
+class Auth extends DBConnector
 {
     public function register(
         string $username,

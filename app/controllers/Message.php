@@ -8,13 +8,6 @@ use Models;
 
 class Message extends Controller
 {
-	public function testRow()
-	{
-		$model = new Models\Message();
-
-		$model->testRow();
-	}
-
 	public function index()
 	{
 		$username = $_SESSION['user_name'] ?? 'undefined';
