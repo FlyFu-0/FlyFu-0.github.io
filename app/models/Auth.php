@@ -98,9 +98,8 @@ class Auth extends Core\DBBuilder implements Core\haveTable
                 $hashUpdate = (new Core\DBBuilder())
 					->setUpdate($this->getTable(), ['passwordHash' => $newHash])
                     ->setWhere([['field' => 'username', 'operator' => '=', 'value' => $username]])
-                    ->getQuery()
+                    ->execute()
                 ;
-				var_dump($hashUpdate);
             }
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['username'];

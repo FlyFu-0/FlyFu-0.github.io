@@ -56,7 +56,6 @@ class DBBuilder
     {
         $this->db->setWhere($where);
         return $this;
-
     }
 
     public function setInsert(): self
@@ -77,9 +76,9 @@ class DBBuilder
         return $this;
     }
 
-    public function setUpdate(string $table, array $columns): self
+    public function setUpdate(string $table, array $set): self
     {
-        $this->db->setUpdate($table, $columns);
+        $this->db->setUpdate($table, $set);
         return $this;
     }
 
