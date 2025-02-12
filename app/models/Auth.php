@@ -3,7 +3,6 @@
 namespace Models;
 
 use Core;
-use PDO;
 
 class Auth extends Core\DBBuilder implements Core\haveTable
 {
@@ -13,8 +12,7 @@ class Auth extends Core\DBBuilder implements Core\haveTable
         string $password,
         string $ip,
         string $browser
-    ): void
-    {
+    ): void {
         $username = htmlspecialchars($username);
         if (!ctype_alnum($username)) {
             flash(
@@ -39,8 +37,8 @@ class Auth extends Core\DBBuilder implements Core\haveTable
 
         $result = (new Core\DBBuilder())
             ->setSelect(['username'])
-            ->setFrom('user')
-            ->setWhere([
+            ->setFrom($this->getTable())
+	        ->setWhere([
                 ['field' => 'username', 'operator' => '=', 'value' => $username],
                 ['field' => 'email', 'operator' => '=', 'value' => $email],
             ])
@@ -58,7 +56,7 @@ class Auth extends Core\DBBuilder implements Core\haveTable
         (new Core\DBBuilder())
             ->setInsert()
             ->setTable($this->getTable())
-            ->setInsertData(['username' => $username,
+	        ->setInsertData(['username' => $username,
                 'email' => $email,
                 'passwordHash' => $passwordHash,
                 'register_ip' => $ip,
@@ -70,14 +68,14 @@ class Auth extends Core\DBBuilder implements Core\haveTable
         header('Location: /login/');
     }
 
-    public function login(string $username, string $password)
+    public function login(string $username, string $password): void
     {
         $username = htmlspecialchars($username);
 
         $user = (new Core\DBBuilder())
             ->setSelect(['id', 'username', 'email', 'passwordHash'])
             ->setFrom($this->getTable())
-            ->setWhere([['field' => 'username', 'operator' => '=', 'value' => $username]])
+	        ->setWhere([['field' => 'username', 'operator' => '=', 'value' => $username]])
             ->execute()[0];
 
         if (!isset($user)) {
@@ -87,18 +85,22 @@ class Auth extends Core\DBBuilder implements Core\haveTable
         }
 
         if (password_verify($password, $user['passwordHash'])) {
+
             if (password_needs_rehash(
                 $user['passwordHash'],
                 PASSWORD_DEFAULT
-            )
+                )
             ) {
                 $newHash = password_hash(
                     $_POST['passwordHash'],
                     PASSWORD_DEFAULT
                 );
                 $hashUpdate = (new Core\DBBuilder())
-                    ->set
-                    ->update('user', ['passwordHash' => $newHash], ['username' => $username]);
+					->setUpdate($this->getTable(), ['passwordHash' => $newHash])
+                    ->setWhere([['field' => 'username', 'operator' => '=', 'value' => $username]])
+                    ->getQuery()
+                ;
+				var_dump($hashUpdate);
             }
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['username'];
@@ -112,8 +114,8 @@ class Auth extends Core\DBBuilder implements Core\haveTable
         header('Location: /login/');
     }
 
-    function getTable(): string
-    {
-        return 'user';
-    }
+	function getTable(): string
+	{
+		return 'user';
+	}
 }

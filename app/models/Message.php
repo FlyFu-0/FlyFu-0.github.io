@@ -7,7 +7,6 @@ use PDO;
 
 class Message extends Core\DBBuilder implements Core\haveTable
 {
-
     public function fetchPagedMessages(
         $sortingField = 'created',
         $order = 'DESC'
@@ -67,8 +66,7 @@ class Message extends Core\DBBuilder implements Core\haveTable
         string $ip,
         string $browser,
         string $savedFilePath = null
-    )
-    {
+    ): array {
         return (new Core\DBBuilder())
             ->setInsert()
             ->setTable($this->getTable())

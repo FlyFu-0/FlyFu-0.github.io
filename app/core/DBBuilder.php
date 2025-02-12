@@ -2,8 +2,6 @@
 
 namespace Core;
 
-use http\Params;
-
 class DBBuilder
 {
     private DB $db;
@@ -79,9 +77,9 @@ class DBBuilder
         return $this;
     }
 
-    public function setUpdate(string $table, array $columns, array $where): self
+    public function setUpdate(string $table, array $columns): self
     {
-        $this->db->setUpdate($table, $columns, $where);
+        $this->db->setUpdate($table, $columns);
         return $this;
     }
 
