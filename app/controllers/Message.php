@@ -27,7 +27,7 @@ class Message extends Controller
         $totalPages = $result['totalPages'];
 
         if (!empty($_POST)) {
-            
+
             try {
                 $message = trim(htmlspecialchars($_POST['message'] ?? ''));
 
@@ -71,14 +71,13 @@ class Message extends Controller
             }
         }
 
-        return $this->render(
-            'messages/index',
-            $data = ['messages' => $messages,
-                'currentPage' => $currentPage,
-                'totalPages' => $totalPages,
-                'user_name' => $username,
-                'user_email' => $email,
-                '$sortField' => $sortOrder,]
-        );
-    }
+		return $this->render('messages/index', $data = [
+			'messages' => $messages,
+			'currentPage' => $currentPage,
+			'totalPages' => $totalPages,
+			'user_name' => $username,
+			'user_email' => $email,
+            'sortOrder' => $sortOrder,
+		]);
+	}
 }

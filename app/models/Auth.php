@@ -2,110 +2,124 @@
 
 namespace Models;
 
-use core\DB;
-use PDO;
+use Core;
 
-class Auth
+class Auth extends Core\DBBuilder
 {
-
-	private PDO $db;
-
-	public function __construct()
-	{
-		$this->db = DB::getInstance();
-	}
-
 	public function register(
 		string $username,
 		string $email,
 		string $password,
 		string $ip,
 		string $browser
-	) {
+	): void {
 		$username = htmlspecialchars($username);
 		if (!ctype_alnum($username)) {
-			throw new \Exception('Username invalid format! Can contains only digits and letters');
+			throw new \Exception(
+				'Username invalid format! Can contains only digits and letters'
+			);
 		}
 
 		$email = htmlspecialchars($email);
 		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			throw new \Exception( 'Email invalid format!');
+			throw new \Exception('Email invalid format!');
 		}
 
 		if (strlen($password) < 5) {
-			throw new \Exception('Password must be at least 6 characters long!');
+			throw new \Exception(
+				'Password must be at least 6 characters long!'
+			);
 		}
 
-		$stmt = $this->db->prepare(
-			"SELECT `username` FROM `user` WHERE `username` = :username OR `email` = :email"
-		);
-		$stmt->execute([
-			'username' => $username,
-			'email' => $email
-		]);
+		$result = $this->getDB()
+			->setSelect(['username'])
+			->addWhere(['userName' => 'test'])
+			->addWhere([
+				[
+					'field' => 'username',
+					'operator' => '=',
+					'value' => $username
+				],
+				['field' => 'email', 'operator' => '=', 'value' => $email],
+			])
+			->execute();
 
-		if ($stmt->rowCount() > 0) {
+		if (count($result)) {
 			throw new \Exception('Username or Email already taken');
 		}
 
 		$password = htmlspecialchars($password);
 		$passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
-		$stmt = $this->db->prepare(
-			"INSERT INTO `user` (`username`, `email`, `passwordHash`, `register_ip`, `browser`) VALUES (:username, :email, :passwordHash, :ip, :browser)"
-		);
-		$stmt->execute([
-			'username' => $username,
-			'passwordHash' => $passwordHash,
-			'email' => $email,
-			'ip' => $ip,
-			'browser' => $browser
-		]);
+		$this->getDB()
+			->setInsert()
+			->setInsertData([
+				'username' => $username,
+				'email' => $email,
+				'passwordHash' => $passwordHash,
+				'register_ip' => $ip,
+				'browser' => $browser,
+			])
+			->execute();
 
 		header('Location: /login/');
 	}
 
-	public function login(string $username, string $password)
+	public function login(string $username, string $password): void
 	{
 		$username = htmlspecialchars($username);
 
-		$stmt = $this->db->prepare(
-			"SELECT `id`, `username`, `email`, `passwordHash` FROM `user` WHERE `username` = :username"
-		);
-		$stmt->execute([
-			'username' => $username
-		]);
-		if (!$stmt->rowCount()) {
+		$user = $this->getDB()
+			->setSelect(['id', 'username', 'email', 'passwordHash'])
+			->addWhere(
+				[
+					[
+						'field' => 'username',
+						'operator' => '=',
+						'value' => $username
+					]
+				]
+			)
+			->execute()[0];
+
+		if (!isset($user)) {
 			throw new \Exception('Username is incorrect');
 		}
 
-		$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-		if (password_verify($password, $user['passwordHash'])) {
-			if (password_needs_rehash(
-				$user['passwordHash'],
-				PASSWORD_DEFAULT
-			)
-			) {
-				$newHash = password_hash(
-					$_POST['passwordHash'],
-					PASSWORD_DEFAULT
-				);
-				$hashUpdate = $this->db->prepare(
-					"UPDATE `user` SET `passwordHash` = :newHash WHERE `username` = :username"
-				);
-				$hashUpdate->execute([
-					'username' => $username,
-					'passwordHash' => $newHash
-				]);
-			}
-			$_SESSION['user_id'] = $user['id'];
-			$_SESSION['user_name'] = $user['username'];
-			$_SESSION['user_email'] = $user['email'];
-			header('Location: /');
-			die;
+		if (!password_verify($password, $user['passwordHash'])) {
+			throw new \Exception('Password is incorrect');
 		}
 
-		throw new \Exception('Password is incorrect');
+		if (password_needs_rehash(
+			$user['passwordHash'],
+			PASSWORD_DEFAULT
+		)
+		) {
+			$newHash = password_hash(
+				$_POST['passwordHash'],
+				PASSWORD_DEFAULT
+			);
+			$this->getDB()
+				->setUpdate($this->getTable(), ['passwordHash' => $newHash])
+				->addWhere(
+					[
+						[
+							'field' => 'username',
+							'operator' => '=',
+							'value' => $username
+						]
+					]
+				)
+				->execute();
+		}
+		$_SESSION['user_id'] = $user['id'];
+		$_SESSION['user_name'] = $user['username'];
+		$_SESSION['user_email'] = $user['email'];
+		header('Location: /');
 	}
+}
+
+function getTable(): string
+{
+	return 'user';
 }

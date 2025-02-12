@@ -2,29 +2,20 @@
 
 namespace Models;
 
-use core\DB;
-use mysql_xdevapi\Exception;
-use PDO;
+use Core;
 
-class Message
+class Message extends Core\DBBuilder implements Core\haveTable
 {
-	private PDO $db;
-
-	public function __construct()
-	{
-		$this->db = DB::getInstance();
-	}
-
 	public function fetchPagedMessages(
 		$sortingField = 'created',
 		$order = 'DESC'
-	) {
-
+	): array {
 		$sortingField = htmlspecialchars($sortingField);
 		$order = htmlspecialchars($order);
 
-		$stmt = $this->db->query("SELECT COUNT(*) as total FROM `messages`");
-		$total = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+		$total = $this->getDB()
+			->setSelect(['COUNT(*)'])
+			->execute()[0]['COUNT(*)'];
 
 		$messagesPerPage = 25;
 		$totalPages = ceil($total / $messagesPerPage);
@@ -34,22 +25,35 @@ class Message
 
 		$startRecord = ($page * $messagesPerPage) - $messagesPerPage;
 
-		$stmt = $this->db->prepare(
-			"SELECT `username`, `email`, `text`, `m`.`create_date` AS `created`, `filePath`
-            FROM `messages` m
-            JOIN `user` u ON m.user_id = u.id
-            ORDER BY `$sortingField` $order
-            LIMIT :start, :count"
-		);
-		$stmt->bindValue(':start', $startRecord, PDO::PARAM_INT);
-		$stmt->bindValue(':count', $messagesPerPage, PDO::PARAM_INT);
-		$stmt->execute();
+		$result = $this->getDB()
+			->setSelect(
+				[
+					'username',
+					'email',
+					'text',
+					$this->getTable() . '.create_date as created',
+					'filePath'
+				]
+			)
+			->setJoin(['user' => 'messages.user_id = user.id'])
+			->addOrder('created', Core\DB::ORDER_DESC)
+			->addOrder('email')
+			->addOrder('username')
+			->setPaged($startRecord, $messagesPerPage)
+			->execute();
 
 		return [
 			'totalPages' => $totalPages,
 			'currentPage' => $page,
-			'result' => $stmt->fetchAll(PDO::FETCH_ASSOC)
+			'result' => $result,
+			'sortOrder' => $order,
+			'sortingField' => $sortingField,
 		];
+	}
+
+	public function getTable(): string
+	{
+		return 'messages';
 	}
 
 	public function createMessage(
@@ -57,17 +61,17 @@ class Message
 		string $userId,
 		string $ip,
 		string $browser,
-		string $savedfilePath = null
-	): bool {
-		$stmt = $this->db->prepare(
-			"INSERT INTO `messages` (`text`, `user_id`, `filePath`, `sender_ip`, `browser`) VALUES (:message, :userId, :savedfilePath, :ip, :browser)"
-		);
-		return $stmt->execute([
-			'message' => strip_tags(htmlspecialchars(($message))),
-			'userId' => $userId,
-			'savedfilePath' => $savedfilePath,
-			'ip' => $ip,
-			'browser' => $browser
-		]);
+		string $savedFilePath = null
+	): array {
+		return $this->getDB()
+			->setInsert()
+			->setInsertData([
+				'text' => $message,
+				'user_id' => $userId,
+				'filePath' => $savedFilePath,
+				'sender_ip' => $ip,
+				'browser' => $browser,
+			])
+			->execute();
 	}
 }
