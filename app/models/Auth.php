@@ -15,24 +15,20 @@ class Auth extends Core\DBBuilder
 	): void {
 		$username = htmlspecialchars($username);
 		if (!ctype_alnum($username)) {
-			flash(
-				'Username invalid format! Can contains only digits and letters.'
+			throw new \Exception(
+				'Username invalid format! Can contains only digits and letters'
 			);
-			header('Location: /register/');
-			die;
 		}
 
 		$email = htmlspecialchars($email);
 		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-			flash('Email invalid format!');
-			header('Location: /register/');
-			die;
+			throw new \Exception('Email invalid format!');
 		}
 
 		if (strlen($password) < 5) {
-			flash('Password must be at least 6 characters long!');
-			header('Location: /register/');
-			die;
+			throw new \Exception(
+				'Password must be at least 6 characters long!'
+			);
 		}
 
 		$result = $this->getDB()
@@ -49,9 +45,7 @@ class Auth extends Core\DBBuilder
 			->execute();
 
 		if (count($result)) {
-			flash('Username or Email already taken.');
-			header('Location: /register/');
-			die;
+			throw new \Exception('Username or Email already taken');
 		}
 
 		$password = htmlspecialchars($password);
@@ -89,48 +83,43 @@ class Auth extends Core\DBBuilder
 			->execute()[0];
 
 		if (!isset($user)) {
-			flash('Username is incorrect.');
-			header('Location: /login/');
-			die;
+			throw new \Exception('Username is incorrect');
 		}
 
-		if (password_verify($password, $user['passwordHash'])) {
-			if (password_needs_rehash(
-				$user['passwordHash'],
+		if (!password_verify($password, $user['passwordHash'])) {
+			throw new \Exception('Password is incorrect');
+		}
+
+		if (password_needs_rehash(
+			$user['passwordHash'],
+			PASSWORD_DEFAULT
+		)
+		) {
+			$newHash = password_hash(
+				$_POST['passwordHash'],
 				PASSWORD_DEFAULT
-			)
-			) {
-				$newHash = password_hash(
-					$_POST['passwordHash'],
-					PASSWORD_DEFAULT
-				);
-				$hashUpdate = $this->getDB()
-					->setUpdate($this->getTable(), ['passwordHash' => $newHash])
-					->addWhere(
+			);
+			$this->getDB()
+				->setUpdate($this->getTable(), ['passwordHash' => $newHash])
+				->addWhere(
+					[
 						[
-							[
-								'field' => 'username',
-								'operator' => '=',
-								'value' => $username
-							]
+							'field' => 'username',
+							'operator' => '=',
+							'value' => $username
 						]
-					)
-					->execute();
-			}
-			$_SESSION['user_id'] = $user['id'];
-			$_SESSION['user_name'] = $user['username'];
-			$_SESSION['user_email'] = $user['email'];
-			flash('Login successfully!');
-			header('Location: /');
-			die;
+					]
+				)
+				->execute();
 		}
-
-		flash('Password is incorrect.');
-		header('Location: /login/');
+		$_SESSION['user_id'] = $user['id'];
+		$_SESSION['user_name'] = $user['username'];
+		$_SESSION['user_email'] = $user['email'];
+		header('Location: /');
 	}
+}
 
-	function getTable(): string
-	{
-		return 'user';
-	}
+function getTable(): string
+{
+	return 'user';
 }

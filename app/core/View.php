@@ -9,6 +9,7 @@ class View
 		return $this->renderLayout($page, $this->renderView($page));
 	}
 
+	//TODO: bug - header tags in body tag
 	private function renderLayout(Page $page, $content)
 	{
 		$layout = $_SERVER['DOCUMENT_ROOT']
@@ -16,6 +17,7 @@ class View
 
 		if (file_exists($layout)) {
 			$title = $page->title;
+			$message = $page->message;
 			include $layout;
 		} else {
 			echo "Layout file undefined: $layout";
