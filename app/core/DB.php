@@ -6,6 +6,12 @@ class DB
 {
 	const ORDER_ASC = 'ASC';
 	const ORDER_DESC = 'DESC';
+
+	const JOIN_LEFT = 'LEFT';
+	const JOIN_RIGHT = 'RIGHT';
+	const JOIN_OUTER = 'FULL';
+	const JOIN_INNER = 'INNER';
+
 	protected \PDO $db;
 	private $action = '';
 	private $table;
@@ -57,11 +63,11 @@ class DB
 		return $this;
 	}
 
-	public function setWhere(array $where): self
+	public function addWhere(array $where): self
 	{
 		$conditions = [];
 
-		foreach ($where as $index => $condition) {
+		foreach ($where as $condition) {
 			$logic = strtoupper($condition['logic'] ?? 'AND');
 			$field = $condition['field'];
 			$operator = $condition['operator'] ?? '=';
@@ -73,32 +79,34 @@ class DB
 				$value = "'$value'";
 			}
 
-			if ($index > 0) {
+			if ($this->where) {
 				$conditions[] = $logic;
+			} else {
+				$this->where = ' WHERE ';
 			}
 
-			$conditions[] = "`$field` $operator $value";
+			$conditions[] = "`$field` $operator $value ";
 		}
 
-		$this->where = ' WHERE ' . implode(' ', $conditions);
+		$this->where .= implode(' ', $conditions);
 		return $this;
 	}
 
 	public function setTable($table): self
 	{
-		$this->table .= "`$table`";
+		$this->table = "`$table`";
 		return $this;
 	}
 
-	public function setJoin($joins): self
+	public function setJoin($joins, string $joinType = DB::JOIN_INNER): self
 	{
 		foreach ($joins as $joinTable => $onCondition) {
-			$this->join .= " JOIN `$joinTable` ON $onCondition";
+			$this->join .= "$joinType JOIN `$joinTable` ON $onCondition";
 		}
 		return $this;
 	}
 
-	public function setOrder(
+	public function addOrder(
 		string $column,
 		string $order = self::ORDER_ASC
 	): DB {
@@ -123,23 +131,34 @@ class DB
 
 	public function getQuery(): string
 	{
-		$this->query ??= match (true) {
-			$this->isActionStart('SELECT') => "
+		$this->query = match (true) {
+			$this->isActionStarts('SELECT') => "
 				{$this->action} 
 				FROM {$this->table}
 				{$this->join}
 				{$this->where}
 				{$this->order}
 				" . ($this->paged ?? $this->limit),
-			$this->isActionStart('INSERT'), $this->isActionStart('UPDATE') => $this->action,
+			$this->isActionStarts(['INSERT', 'UPDATE']) => $this->action,
 		};
 
 		return $this->query;
 	}
 
-	private function isActionStart($action): bool
+	private function isActionStarts($action): bool
 	{
-		return str_starts_with($this->action, $action);
+		if (!is_array($action)) {
+			return str_starts_with($this->action, $action);
+		}
+
+		foreach ($action as $value) {
+			if (str_starts_with($this->action, $value)) {
+				return true;
+			}
+		}
+
+
+		return false;
 	}
 
 	public function setLimit(int $limit): self

@@ -37,8 +37,8 @@ class Auth extends Core\DBBuilder
 
 		$result = $this->getDB()
 			->setSelect(['username'])
-			->setWhere(['userName' => 'test'])
-			->setWhere([
+			->addWhere(['userName' => 'test'])
+			->addWhere([
 				[
 					'field' => 'username',
 					'operator' => '=',
@@ -77,7 +77,7 @@ class Auth extends Core\DBBuilder
 
 		$user = $this->getDB()
 			->setSelect(['id', 'username', 'email', 'passwordHash'])
-			->setWhere(
+			->addWhere(
 				[
 					[
 						'field' => 'username',
@@ -106,7 +106,7 @@ class Auth extends Core\DBBuilder
 				);
 				$hashUpdate = $this->getDB()
 					->setUpdate($this->getTable(), ['passwordHash' => $newHash])
-					->setWhere(
+					->addWhere(
 						[
 							[
 								'field' => 'username',
