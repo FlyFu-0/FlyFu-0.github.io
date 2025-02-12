@@ -15,9 +15,8 @@ class Message extends Core\DBBuilder implements Core\haveTable
         $sortingField = htmlspecialchars($sortingField);
         $order = htmlspecialchars($order);
 
-        $total = (new Core\DBBuilder())
+        $total = $this->getDB()
             ->setSelect(['COUNT(*)'])
-            ->setFrom($this->getTable())
             ->execute()[0]['COUNT(*)'];
 
         $messagesPerPage = 25;
@@ -28,7 +27,7 @@ class Message extends Core\DBBuilder implements Core\haveTable
 
         $startRecord = ($page * $messagesPerPage) - $messagesPerPage;
 
-        $result = (new Core\DBBuilder())
+        $result = $this->getDB()
             ->setSelect(
                 [
                     'username',
@@ -38,7 +37,6 @@ class Message extends Core\DBBuilder implements Core\haveTable
                     'filePath'
                 ]
             )
-            ->setFrom($this->getTable())
             ->setJoin(['user' => 'messages.user_id = user.id'])
             ->setOrder('created', Core\DB::ORDER_DESC)
             ->setOrder('email')
@@ -67,9 +65,8 @@ class Message extends Core\DBBuilder implements Core\haveTable
         string $browser,
         string $savedFilePath = null
     ): array {
-        return (new Core\DBBuilder())
+        return $this->getDB()
             ->setInsert()
-            ->setTable($this->getTable())
             ->setInsertData([
                 'text' => $message,
                 'user_id' => $userId,

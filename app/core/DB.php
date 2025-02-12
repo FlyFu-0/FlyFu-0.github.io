@@ -7,8 +7,8 @@ class DB
 	const ORDER_ASC = 'ASC';
 	const ORDER_DESC = 'DESC';
 	protected \PDO $db;
-	private $action;
-	private $from;
+	private $action = '';
+	private $table;
 	private $join;
 	private $where;
 	private $order;
@@ -29,7 +29,7 @@ class DB
 
 	public function setInsert(): self
 	{
-		$this->action = "INSERT INTO";
+		$this->action = "INSERT INTO {$this->table}";
 		return $this;
 	}
 
@@ -54,12 +54,10 @@ class DB
 
 		$this->action .= implode(', ', $setParts);
 
-		var_dump($this->action);
-
 		return $this;
 	}
 
-	public function setWhere(array $where): string
+	public function setWhere(array $where): self
 	{
 		$conditions = [];
 
@@ -82,18 +80,13 @@ class DB
 			$conditions[] = "`$field` $operator $value";
 		}
 
-		return $this->where = ' WHERE ' . implode(' ', $conditions);
+		$this->where = ' WHERE ' . implode(' ', $conditions);
+		return $this;
 	}
 
 	public function setTable($table): self
 	{
-		$this->action .= " `$table`";
-		return $this;
-	}
-
-	public function setFrom($table): self
-	{
-		$this->from = " FROM `$table`";
+		$this->table .= "`$table`";
 		return $this;
 	}
 
@@ -130,13 +123,23 @@ class DB
 
 	public function getQuery(): string
 	{
-		return $this->query ??= "
-			$this->action 
-			$this->from
-			$this->join
-			$this->where
-			$this->order
-			" . ($this->paged ?? $this->limit);
+		$this->query ??= match (true) {
+			$this->isActionStart('SELECT') => "
+				{$this->action} 
+				FROM {$this->table}
+				{$this->join}
+				{$this->where}
+				{$this->order}
+				" . ($this->paged ?? $this->limit),
+			$this->isActionStart('INSERT'), $this->isActionStart('UPDATE') => $this->action,
+		};
+
+		return $this->query;
+	}
+
+	private function isActionStart($action): bool
+	{
+		return str_starts_with($this->action, $action);
 	}
 
 	public function setLimit(int $limit): self
