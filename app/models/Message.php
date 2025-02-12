@@ -2,7 +2,7 @@
 
 namespace Models;
 
-use Core\DB;
+use core\DB;
 use PDO;
 
 class Message

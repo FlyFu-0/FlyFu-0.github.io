@@ -2,10 +2,11 @@
 
 namespace Controllers;
 
+use Core\Controller;
 use Models;
 use Helpers\Tools;
 
-class Auth
+class Auth extends Controller
 {
 	public function register()
 	{
@@ -20,8 +21,9 @@ class Auth
 			);
 		}
 
-		require $_SERVER['DOCUMENT_ROOT']
-			. '/app/views/authentication/register.php';
+		$this->title = 'Register';
+
+		return $this->render('auth/register');
 	}
 
 	public function login()
@@ -31,7 +33,9 @@ class Auth
 			$model->login($_POST['username'], $_POST['password']);
 		}
 
-		require $_SERVER['DOCUMENT_ROOT'] . '/app/views/authentication/login.php';
+		$this->title = 'Login';
+
+		return $this->render('auth/login');
 	}
 
 	public function logout()
@@ -41,6 +45,6 @@ class Auth
 		unset($_SESSION['user_name']);
 		unset($_SESSION['user_email']);
 		flash('You have successfully logged out.');
-		header('Location: /app/bootstrap.php');
+		header('Location: /');
 	}
 }

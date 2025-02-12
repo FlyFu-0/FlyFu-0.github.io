@@ -2,7 +2,7 @@
 
 namespace Models;
 
-use Core\DB;
+use core\DB;
 use PDO;
 
 class Auth
@@ -27,20 +27,20 @@ class Auth
 			flash(
 				'Username invalid format! Can contains only digits and letters.'
 			);
-			header('Location: ?url=register');
+			header('Location: register/');
 			die;
 		}
 
 		$email = htmlspecialchars($email);
 		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 			flash('Email invalid format!');
-			header('Location: ?url=register');
+			header('Location: register/');
 			die;
 		}
 
 		if (strlen($password) < 5) {
 			flash('Password must be at least 6 characters long!');
-			header('Location: ?url=register');
+			header('Location: register/');
 			die;
 		}
 
@@ -54,7 +54,7 @@ class Auth
 
 		if ($stmt->rowCount() > 0) {
 			flash('Username or Email already taken.');
-			header('Location: ?url=register');
+			header('Location: register/');
 			die;
 		}
 
@@ -72,7 +72,7 @@ class Auth
 			'browser' => $browser
 		]);
 
-		header('Location: ?url=login');
+		header('Location: login/');
 	}
 
 	public function login(string $username, string $password)
@@ -87,13 +87,11 @@ class Auth
 		]);
 		if (!$stmt->rowCount()) {
 			flash('Username is incorrect.');
-			header('Location: ?url=login');
+			header('Location: login/');
 			die;
 		}
 
 		$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-		echo "<script>console.log('Okay')</script>";
 
 		if (password_verify($password, $user['passwordHash'])) {
 			if (password_needs_rehash(
@@ -117,11 +115,11 @@ class Auth
 			$_SESSION['user_name'] = $user['username'];
 			$_SESSION['user_email'] = $user['email'];
 			flash('Login successfully!');
-			header('Location: /app/');
+			header('Location: /');
 			die;
 		}
 
 		flash('Password is incorrect.');
-		header('Location: ?url=login');
+		header('Location: login/');
 	}
 }
