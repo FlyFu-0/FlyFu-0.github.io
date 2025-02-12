@@ -3,6 +3,7 @@
 namespace Models;
 
 use core\DB;
+use mysql_xdevapi\Exception;
 use PDO;
 
 class Message
@@ -18,6 +19,7 @@ class Message
 		$sortingField = 'created',
 		$order = 'DESC'
 	) {
+
 		$sortingField = htmlspecialchars($sortingField);
 		$order = htmlspecialchars($order);
 

@@ -17,6 +17,7 @@ class View
 
 		if (file_exists($layout)) {
 			$title = $page->title;
+			$message = $page->message;
 			include $layout;
 		} else {
 			echo "Layout file undefined: $layout";

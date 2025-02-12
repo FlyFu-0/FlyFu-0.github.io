@@ -7,6 +7,16 @@
     <title>Chat PHP Application - <?= $title ?></title>
 </head>
 <body>
+<?php if ($message): ?>
+    <label>
+        <input type="checkbox" class="alertCheckbox" autocomplete="off"/>
+        <div class="alert warning">
+        <span class="alertText"><?= $message ?>
+    <br class="clear"/></span>
+        </div>
+    </label>
+<?php endif ?>
+
 <?= $content ?>
 </body>
 </html>
