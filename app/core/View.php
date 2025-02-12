@@ -9,6 +9,7 @@ class View
 		return $this->renderLayout($page, $this->renderView($page));
 	}
 
+	//TODO: bug - header tags in body tag
 	private function renderLayout(Page $page, $content)
 	{
 		$layout = $_SERVER['DOCUMENT_ROOT']
