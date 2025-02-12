@@ -12,8 +12,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/app/helpers/flash.php';
 
 $routes = require $_SERVER['DOCUMENT_ROOT'] . '/app/config/routes.php';
 
-$route = (new Core\Router)->getTrack($routes, $_SERVER['REQUEST_URI']);
-
-$page = (new Core\Dispatcher)->getPage($route);
+$page = (new Core\Router)->getTrack($routes, $_SERVER['REQUEST_URI']);
 
 (new Core\View)->render($page);
