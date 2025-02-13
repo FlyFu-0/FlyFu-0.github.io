@@ -100,7 +100,7 @@ class Auth extends Core\DBBuilder
 				PASSWORD_DEFAULT
 			);
 			$this->getDB()
-				->setUpdate($this->getTable(), ['passwordHash' => $newHash])
+				->setUpdate(['passwordHash' => $newHash])
 				->addWhere(
 					[
 						[

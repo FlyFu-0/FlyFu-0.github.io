@@ -41,21 +41,59 @@ class DB
 
 	public function setInsertData(array $data): self
 	{
+		$valueEscaped = str_replace("'", "\'", array_values($data));
+		$valueEscaped = str_replace("\\", "\\\\", array_values($data));
+
 		$columns = "`" . implode("`, `", array_keys($data)) . "`";
-		$values = "'" . implode("', '", array_values($data)) . "'";
+		$values = "'" . implode("', '", $valueEscaped) . "'";
 
 		$this->action .= " ($columns) VALUES ($values)";
 
+		var_dump($this->getQuery());
 		return $this;
 	}
 
-	public function setUpdate($table, array $set): self
+	public function getQuery(): string
 	{
-		$this->action = "UPDATE `$table` SET ";
+		$this->query = match (true) {
+			$this->isActionStarts('SELECT') => "
+				{$this->action} 
+				FROM {$this->table}
+				{$this->join}
+				{$this->where}
+				{$this->order}
+				" . ($this->paged ?? $this->limit),
+			$this->isActionStarts(['INSERT', 'UPDATE']) => $this->action,
+		};
+
+		return $this->query;
+	}
+
+	private function isActionStarts($action): bool
+	{
+		if (!is_array($action)) {
+			return str_starts_with($this->action, $action);
+		}
+
+		foreach ($action as $value) {
+			if (str_starts_with($this->action, $value)) {
+				return true;
+			}
+		}
+
+
+		return false;
+	}
+
+	public function setUpdate(array $set): self
+	{
+		$this->action = "UPDATE `{$this->table}` SET ";
 
 		$setParts = [];
 		foreach ($set as $column => $value) {
-			$setParts[] = "`$column` = $value";
+			$valueEscaped = str_replace("'", "\'", $value);
+			var_dump($valueEscaped);
+			$setParts[] = "`$column` = $valueEscaped";
 		}
 
 		$this->action .= implode(', ', $setParts);
@@ -122,45 +160,11 @@ class DB
 	{
 		$query = $this->getQuery();
 
-//		var_dump($query);
-
 		$stmt = $this->db->prepare($query);
 
 		$stmt->execute();
 
 		return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-	}
-
-	public function getQuery(): string
-	{
-		$this->query = match (true) {
-			$this->isActionStarts('SELECT') => "
-				{$this->action} 
-				FROM {$this->table}
-				{$this->join}
-				{$this->where}
-				{$this->order}
-				" . ($this->paged ?? $this->limit),
-			$this->isActionStarts(['INSERT', 'UPDATE']) => $this->action,
-		};
-
-		return $this->query;
-	}
-
-	private function isActionStarts($action): bool
-	{
-		if (!is_array($action)) {
-			return str_starts_with($this->action, $action);
-		}
-
-		foreach ($action as $value) {
-			if (str_starts_with($this->action, $value)) {
-				return true;
-			}
-		}
-
-
-		return false;
 	}
 
 	public function setLimit(int $limit): self
