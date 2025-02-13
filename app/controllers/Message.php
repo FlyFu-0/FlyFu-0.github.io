@@ -92,7 +92,7 @@ class Message extends Controller
 					'selfClosing' => false,
 					'attributes' => [
 						'rel' => 'stylesheet',
-						'href' => '/assets/js/lib/BBCodeEditor/minified/themes/default.min.css',
+						'href' => '/assets/js/lib/BBCodeEditor/minified/themes/office-toolbar.min.css',
 					]
 				],
 				[

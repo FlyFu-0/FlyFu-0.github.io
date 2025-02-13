@@ -6,7 +6,7 @@ class View
 {
 	public function render(Page $page)
 	{
-		return $this->renderLayout($page, $this->renderView($page));
+		$this->renderLayout($page, $this->renderView($page));
 	}
 
 	private function renderLayout(Page $page, $content)
@@ -18,10 +18,7 @@ class View
 			$title = $page->title;
 			$message = $page->message;
 			$assets = $page->assets;
-
-
 			$connections = $this->connectionConstructor($assets);
-
 			include $layout;
 		} else {
 			echo "Layout file undefined: $layout";
@@ -29,7 +26,7 @@ class View
 		}
 	}
 
-	public function connectionConstructor(mixed $assets): array
+	private function connectionConstructor(mixed $assets): array
 	{
 		$connections = [];
 		foreach ($assets as $asset) {
