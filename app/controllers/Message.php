@@ -77,7 +77,7 @@ class Message extends Controller
 
 		return $this->render(
 			'messages/index',
-			$data = [
+			[
 				'messages' => $messages,
 				'currentPage' => $currentPage,
 				'totalPages' => $totalPages,
@@ -85,6 +85,44 @@ class Message extends Controller
 				'user_email' => $email,
 				'sortOrder' => $sortOrder,
 				'bbCode' => $bbcode,
+			],
+			[
+				[
+					'type' => 'link',
+					'selfClosing' => false,
+					'attributes' => [
+						'rel' => 'stylesheet',
+						'href' => '/assets/js/lib/BBCodeEditor/minified/themes/default.min.css',
+					]
+				],
+				[
+					'type' => 'script',
+					'selfClosing' => false,
+					'attributes' => [
+						'src' => '/assets/js/lib/BBCodeEditor/minified/sceditor.min.js',
+					]
+				],
+				[
+					'type' => 'script',
+					'selfClosing' => false,
+					'attributes' => [
+						'src' => '/assets/js/lib/BBCodeEditor/minified/formats/bbcode.js',
+					]
+				],
+				[
+					'type' => 'script',
+					'selfClosing' => false,
+					'attributes' => [
+						'src' => '/assets/js/lib/BBCodeEditor/languages/nl.js',
+					]
+				],
+				[
+					'type' => 'script',
+					'selfClosing' => false,
+					'attributes' => [
+						'src' => '/assets/js/BBCodeCreator.js',
+					]
+				],
 			]
 		);
 	}
