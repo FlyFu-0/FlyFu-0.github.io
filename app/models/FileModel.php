@@ -4,10 +4,10 @@ namespace Models;
 
 class FileModel
 {
-	private $allowedTextExtensions = ['txt'];
-	private $allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png'];
-	private $maxFileSize = 100 * 1024;
-	private $uploadPath;
+	private array $allowedTextExtensions = ['txt'];
+	private array$allowedImageExtensions = ['jpg', 'jpeg', 'gif', 'png'];
+	private int $maxFileSize = 100 * 1024;
+	private string $uploadPath;
 
 	public function __construct()
 	{

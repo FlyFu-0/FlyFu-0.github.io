@@ -100,7 +100,7 @@ class Auth extends Core\DBBuilder
 				PASSWORD_DEFAULT
 			);
 			$this->getDB()
-				->setUpdate($this->getTable(), ['passwordHash' => $newHash])
+				->setUpdate(['passwordHash' => $newHash])
 				->addWhere(
 					[
 						[
@@ -117,9 +117,9 @@ class Auth extends Core\DBBuilder
 		$_SESSION['user_email'] = $user['email'];
 		header('Location: /');
 	}
-}
 
-function getTable(): string
-{
-	return 'user';
+	protected function getTable(): string
+	{
+		return 'user';
+	}
 }

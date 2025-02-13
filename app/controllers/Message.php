@@ -2,82 +2,128 @@
 
 namespace Controllers;
 
+use app\Application;
 use Core\Controller;
 use Helpers\Tools;
 use Models;
 
 class Message extends Controller
 {
-    public function index()
-    {
-        $this->title = 'Messages';
+	public function index()
+	{
+		$this->title = 'Messages';
 
-        $username = $_SESSION['user_name'] ?? 'undefined';
-        $email = $_SESSION['user_email'] ?? 'undefined';
+		$bbcode = Tools::bbCodeCustomizer();
 
-        $sortField = $_GET['sort'] ?? 'created';
-        $sortOrder = isset($_GET['order']) && $_GET['order'] === 'asc' ? 'asc'
-            : 'desc';
+		$username = $_SESSION['user_name'] ?? 'undefined';
+		$email = $_SESSION['user_email'] ?? 'undefined';
 
-        $model = new Models\Message();
-        $result = $model->fetchPagedMessages($sortField, $sortOrder);
+		$sortField = $_GET['sort'] ?? 'created';
+		$sortOrder = isset($_GET['order']) && $_GET['order'] === 'asc' ? 'asc'
+			: 'desc';
 
-        $messages = $result['result'];
-        $currentPage = $result['currentPage'];
-        $totalPages = $result['totalPages'];
+		$model = new Models\Message();
+		$result = $model->fetchPagedMessages($sortField, $sortOrder);
 
-        if (!empty($_POST)) {
+		$messages = $result['result'];
+		$currentPage = $result['currentPage'];
+		$totalPages = $result['totalPages'];
 
-            try {
-                $message = trim(htmlspecialchars($_POST['message'] ?? ''));
+		if (!empty($_POST)) {
+			try {
+				$message = htmlspecialchars(trim($_POST['message'] ?? ''));
 
-                if (empty($message)) {
-                    throw new \Exception('Please enter a message');
-                }
+				if (empty($message)) {
+					throw new \Exception('Please enter a message');
+				}
 
-                if (!isset($_FILES['file']) && !empty($_FILES['file']['error'])) {
-                    $model->createMessage(
-                        $message,
-                        $_SESSION['user_id'],
-                        Tools::get_ip(),
-                        $_SERVER['HTTP_USER_AGENT'],
-                    );
-                    header('Location: /');
-                    die;
-                }
+				if (empty($_FILES['file']['name'])
+					|| $_FILES['file']['error'] != UPLOAD_ERR_OK
+				) {
+					$model->createMessage(
+						$message,
+						$_SESSION['user_id'],
+						Tools::get_ip(),
+						$_SERVER['HTTP_USER_AGENT'],
+					);
+					header('Location: /');
+					die;
+				}
 
-                $fileModel = new Models\FileModel();
+				$fileModel = new Models\FileModel();
 
-                $savedFilePath = $fileModel->saveFile();
+				$savedFilePath = $fileModel->saveFile();
 
-                if ($savedFilePath) {
-                    $model->createMessage(
-                        $message,
-                        $_SESSION['user_id'],
-                        Tools::get_ip(),
-                        $_SERVER['HTTP_USER_AGENT'],
-                        $savedFilePath
-                    );
-                    header('Location: /');
-                    die;
-                }
-            } catch (\Exception $e) {
+				if (!$savedFilePath) {
+					die;
+				}
 
-                if (isset($savedFilePath) && file_exists($savedFilePath)) {
-                    unlink($savedFilePath);
-                }
+				$model->createMessage(
+					$message,
+					$_SESSION['user_id'],
+					Tools::get_ip(),
+					$_SERVER['HTTP_USER_AGENT'],
+					$savedFilePath
+				);
+				header('Location: /');
+			} catch (\Exception $e) {
+				if (isset($savedFilePath) && file_exists($savedFilePath)) {
+					unlink($savedFilePath);
+				}
 
-                $this->error = $e->getMessage();
-            }
-        }
+				$this->error = $e->getMessage();
+			}
+		}
 
-		return $this->render('messages/index', $data = [
-			'messages' => $messages,
-			'currentPage' => $currentPage,
-			'totalPages' => $totalPages,
-			'user_name' => $username,
-			'user_email' => $email,
-            'sortOrder' => $sortOrder,
-		]);
+		return $this->render(
+			'messages/index',
+			[
+				'messages' => $messages,
+				'currentPage' => $currentPage,
+				'totalPages' => $totalPages,
+				'user_name' => $username,
+				'user_email' => $email,
+				'sortOrder' => $sortOrder,
+				'bbCode' => $bbcode,
+			],
+			[
+				[
+					'type' => 'link',
+					'selfClosing' => false,
+					'attributes' => [
+						'rel' => 'stylesheet',
+						'href' => '/assets/js/lib/BBCodeEditor/minified/themes/office-toolbar.min.css',
+					]
+				],
+				[
+					'type' => 'script',
+					'selfClosing' => false,
+					'attributes' => [
+						'src' => '/assets/js/lib/BBCodeEditor/minified/sceditor.min.js',
+					]
+				],
+				[
+					'type' => 'script',
+					'selfClosing' => false,
+					'attributes' => [
+						'src' => '/assets/js/lib/BBCodeEditor/minified/formats/bbcode.js',
+					]
+				],
+				[
+					'type' => 'script',
+					'selfClosing' => false,
+					'attributes' => [
+						'src' => '/assets/js/lib/BBCodeEditor/languages/nl.js',
+					]
+				],
+				[
+					'type' => 'script',
+					'selfClosing' => false,
+					'attributes' => [
+						'src' => '/assets/js/BBCodeCreator.js',
+					]
+				],
+			]
+		);
 	}
 }

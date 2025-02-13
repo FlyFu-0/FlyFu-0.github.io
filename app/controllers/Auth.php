@@ -12,7 +12,6 @@ class Auth extends Core\Controller
     {
         $this->title = 'Register';
 
-        $result = '';
         if (!empty($_POST)) {
             try {
                 $model = new Models\Auth();
@@ -27,7 +26,6 @@ class Auth extends Core\Controller
                 $this->error = $e->getMessage();
             }
         }
-
 
         return $this->render('auth/register');
     }

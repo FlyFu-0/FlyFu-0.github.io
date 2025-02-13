@@ -17,6 +17,33 @@ class Tools
 
 		return $value;
 	}
+
+	public static function bbCodeCustomizer(): \Helpers\BBCode\BBCode
+	{
+		$bbCode = new \Helpers\BBCode\BBCode();
+
+		$bbCode->addTag('sup', function ($tag, &$html, $openingTag) {
+			return ($tag->opening) ? '<sup>' : '</sup>';
+		});
+
+		$bbCode->addTag('sub', function ($tag, &$html, $openingTag) {
+			return ($tag->opening) ? '<sub>' : '</sub>';
+		});
+
+		$bbCode->addTag('ul', function ($tag, &$html, $openingTag) {
+			return ($tag->opening) ? '<ul>' : '</ul>';
+		});
+
+		$bbCode->addTag('li', function ($tag, &$html, $openingTag) {
+			return ($tag->opening) ? '<li>' : '</li>';
+		});
+
+		$bbCode->addTag('ol', function ($tag, &$html, $openingTag) {
+			return ($tag->opening) ? '<ol>' : '</ol>';
+		});
+
+		return $bbCode;
+	}
 }
 
 
