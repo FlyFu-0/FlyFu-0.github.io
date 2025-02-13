@@ -8,7 +8,7 @@ class Message extends Core\DBBuilder implements Core\haveTable
 {
 	public function fetchPagedMessages(
 		$sortingField = 'created',
-		$order = 'DESC'
+		$order = Core\DB::ORDER_DESC
 	): array {
 		$sortingField = htmlspecialchars($sortingField);
 		$order = htmlspecialchars($order);
@@ -36,7 +36,7 @@ class Message extends Core\DBBuilder implements Core\haveTable
 				]
 			)
 			->setJoin(['user' => 'messages.user_id = user.id'])
-			->addOrder('created', Core\DB::ORDER_DESC)
+			->addOrder($sortingField, $order)
 			->addOrder('email')
 			->addOrder('username')
 			->setPaged($startRecord, $messagesPerPage)
