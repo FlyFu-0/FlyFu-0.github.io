@@ -13,14 +13,14 @@ class DB
 	const JOIN_INNER = 'INNER';
 
 	protected \PDO $db;
-	private $action = '';
-	private $table;
-	private $join;
-	private $where;
-	private $order;
-	private $limit;
-	private $paged;
-	private $query;
+	private string $action = '';
+	private string $table;
+	private string $join = '';
+	private string $where = '';
+	private string $order = '';
+	private string $limit = '';
+	private string $paged = '';
+	private string $query = '';
 
 	public function __construct()
 	{

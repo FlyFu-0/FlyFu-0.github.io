@@ -4,8 +4,6 @@ namespace Core;
 
 abstract class DBBuilder
 {
-	private DB $db;
-
 	protected function getDB(): DB
 	{
 		$dbObject = new DB();
