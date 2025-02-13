@@ -21,8 +21,16 @@ if (isset($_SESSION['user_id'])) : ?>
 
     <form action="/messages/" method="post" enctype="multipart/form-data"
           class="message-send-container">
-        <textarea name="message" placeholder="Your message..."
-                  required></textarea>
+
+        <link rel="stylesheet"
+              href="/BBCodeEditor/minified/themes/default.min.css"/>
+        <script src="/BBCodeEditor/minified/sceditor.min.js"></script>
+        <script src="/BBCodeEditor/minified/formats/bbcode.js"></script>
+        <script src="/BBCodeEditor/languages/nl.js"></script>
+
+        <textarea name="message" id="mytxtarea"></textarea>
+
+        <script src="/BBCodeEditor/BBCodeCreator.js"></script>
         <br/>
 
         <!--        <input type="hidden" name="MAX_FILE_SIZE" value="103000">-->
@@ -56,7 +64,7 @@ endif ?>
         <tr>
             <td><?= $message["username"] ?></td>
             <td><?= $message["email"] ?></td>
-            <td><?= $message["text"] ?></td>
+            <td><?= $bbCode->render($message["text"]) ?></td>
             <td>
 				<?php
 				if (!empty($message['filePath'])

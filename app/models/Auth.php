@@ -117,9 +117,9 @@ class Auth extends Core\DBBuilder
 		$_SESSION['user_email'] = $user['email'];
 		header('Location: /');
 	}
-}
 
-function getTable(): string
-{
-	return 'user';
+	protected function getTable(): string
+	{
+		return 'user';
+	}
 }

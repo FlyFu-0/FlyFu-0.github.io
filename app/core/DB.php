@@ -122,6 +122,8 @@ class DB
 	{
 		$query = $this->getQuery();
 
+//		var_dump($query);
+
 		$stmt = $this->db->prepare($query);
 
 		$stmt->execute();

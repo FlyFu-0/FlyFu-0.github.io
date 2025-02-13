@@ -2,6 +2,7 @@
 
 namespace Controllers;
 
+use app\Application;
 use Core\Controller;
 use Helpers\Tools;
 use Models;
@@ -11,6 +12,8 @@ class Message extends Controller
     public function index()
     {
         $this->title = 'Messages';
+
+	    $bbcode = Tools::bbCodeCustomizer();
 
         $username = $_SESSION['user_name'] ?? 'undefined';
         $email = $_SESSION['user_email'] ?? 'undefined';
@@ -29,13 +32,15 @@ class Message extends Controller
         if (!empty($_POST)) {
 
             try {
-                $message = trim(htmlspecialchars($_POST['message'] ?? ''));
+                $message = trim($_POST['message'] ?? '');
+
+				var_dump($message);
 
                 if (empty($message)) {
                     throw new \Exception('Please enter a message');
                 }
 
-                if (!isset($_FILES['file']) && !empty($_FILES['file']['error'])) {
+                if (empty($_FILES['file']['name']) || $_FILES['file']['error'] != UPLOAD_ERR_OK) {
                     $model->createMessage(
                         $message,
                         $_SESSION['user_id'],
@@ -63,6 +68,8 @@ class Message extends Controller
                 }
             } catch (\Exception $e) {
 
+				var_dump($e->getTraceAsString());
+
                 if (isset($savedFilePath) && file_exists($savedFilePath)) {
                     unlink($savedFilePath);
                 }
@@ -78,6 +85,7 @@ class Message extends Controller
 			'user_name' => $username,
 			'user_email' => $email,
             'sortOrder' => $sortOrder,
+			'bbCode' => $bbcode,
 		]);
 	}
 }
